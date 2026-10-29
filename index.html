@@ -1,557 +1,1991 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="sombre">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Guide interactif accessible SmartVision3 : prise en main basique, maîtrisée et avancée, vocalisation, contrastes, quiz et progression.">
+<title>SmartVision3 — Guide interactif accessible</title>
+<style>
+  /* ============ Thèmes et variables ============ */
+  :root{
+    --bg:#0b0d12;
+    --panel:#151922;
+    --panel-2:#1f2531;
+    --text:#f7f7fa;
+    --muted:#c3c9d4;
+    --accent:#ffd400;
+    --accent-text:#111111;
+    --border:#5b6373;
+    --focus:#4cd7ff;
+    --ok:#63e6a5;
+    --err:#ff8f8f;
+    --ok-bg:#0f2a1e;
+    --err-bg:#331414;
+    color-scheme: dark;
+  }
+  html[data-theme="clair"]{
+    --bg:#ffffff;
+    --panel:#f4f5f8;
+    --panel-2:#e8eaf0;
+    --text:#111318;
+    --muted:#3d4350;
+    --accent:#0b3dcc;
+    --accent-text:#ffffff;
+    --border:#5a6273;
+    --focus:#b0006d;
+    --ok:#0f6b3c;
+    --err:#a11616;
+    --ok-bg:#e3f7ec;
+    --err-bg:#fdeaea;
+    color-scheme: light;
+  }
+  html[data-theme="contraste"]{
+    --bg:#000000;
+    --panel:#000000;
+    --panel-2:#000000;
+    --text:#ffffff;
+    --muted:#ffffff;
+    --accent:#ffff00;
+    --accent-text:#000000;
+    --border:#ffffff;
+    --focus:#00ffff;
+    --ok:#00ff88;
+    --err:#ff5555;
+    --ok-bg:#000000;
+    --err-bg:#000000;
+    color-scheme: dark;
+  }
+
+  *,*::before,*::after{box-sizing:border-box}
+  html{font-size:18px;scroll-behavior:smooth}
+  [hidden]{display:none !important}
+  body{
+    margin:0;
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    line-height:1.55;
+    background:var(--bg);
+    color:var(--text);
+  }
+  ::selection{background:var(--accent);color:var(--accent-text)}
+  a{color:var(--accent);text-underline-offset:.2em}
+  a:hover{text-decoration-thickness:3px}
+  .wrap{max-width:80rem;margin:0 auto;padding:1rem 1.1rem}
+
+  /* ============ Accessibilité de base ============ */
+  .sr-only{
+    position:absolute !important;width:1px;height:1px;padding:0;margin:-1px;
+    overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;
+  }
+  .skip-link{
+    position:absolute;left:.6rem;top:-120px;z-index:100;
+    background:var(--accent);color:var(--accent-text);
+    padding:.8rem 1.1rem;border-radius:.45rem;font-weight:800;
+    text-decoration:none;
+  }
+  .skip-link:focus{top:.6rem}
+  :focus-visible{outline:4px solid var(--focus);outline-offset:3px}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto}
+    *{animation-duration:.001ms !important;transition-duration:.001ms !important}
+  }
+  @media (forced-colors: active){
+    .btn,.card,.tab,.question,.option,.progress{border:2px solid ButtonText}
+    :focus-visible{outline:3px solid Highlight}
+  }
+
+  /* ============ En-tête ============ */
+  .site-header{border-bottom:2px solid var(--border);background:var(--panel)}
+  .kicker{margin:.2rem 0;color:var(--muted);font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-size:.8rem}
+  h1{font-size:clamp(1.5rem,3vw,2.15rem);line-height:1.2;margin:.15rem 0 .5rem}
+  .lead{margin:.4rem 0 1rem;max-width:65ch;color:var(--muted)}
+  .quick-tools{display:flex;flex-wrap:wrap;gap:.6rem;margin-bottom:1rem}
+
+  /* ============ Boutons ============ */
+  .btn{
+    font:inherit;
+    min-height:2.75rem;
+    padding:.55rem .95rem;
+    border-radius:.5rem;
+    border:2px solid var(--border);
+    background:var(--panel-2);
+    color:var(--text);
+    cursor:pointer;
+    display:inline-flex;align-items:center;gap:.4rem;
+    text-align:left;
+  }
+  .btn:hover{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
+  .btn.primary{background:var(--accent);color:var(--accent-text);border-color:var(--accent);font-weight:800}
+  .btn.primary:hover{filter:brightness(1.08)}
+  .btn[aria-pressed="true"]{outline:3px solid var(--accent);outline-offset:2px}
+  .btn:disabled{opacity:.55;cursor:not-allowed}
+
+  /* ============ Panneaux / sections ============ */
+  .panel{
+    background:var(--panel);
+    border:2px solid var(--border);
+    border-radius:.7rem;
+    padding:.9rem 1rem;
+    margin:1rem 0;
+  }
+  summary{cursor:pointer;font-weight:800;min-height:2.75rem;display:flex;align-items:center}
+  summary:hover{color:var(--accent)}
+  h2{font-size:1.4rem;line-height:1.25;margin:1.6rem 0 .6rem}
+  h3{font-size:1.15rem;line-height:1.3;margin:0}
+  .hint{color:var(--muted);font-size:.95rem}
+  .warning{
+    border:2px solid var(--err);
+    background:var(--err-bg);
+    color:var(--text);
+    padding:.8rem 1rem;border-radius:.5rem;margin:.8rem 0;
+  }
+  kbd{
+    font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
+    font-size:.92em;
+    border:2px solid var(--border);
+    border-bottom-width:4px;
+    border-radius:.3rem;
+    padding:.1em .35em;
+    background:var(--panel-2);
+    color:var(--text);
+  }
+
+  /* ============ Réglages ============ */
+  .settings-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(min(100%,18rem),1fr));
+    gap:1rem;margin-top:.8rem;
+  }
+  fieldset{border:2px solid var(--border);border-radius:.5rem;padding:.7rem .9rem;margin:0;min-width:0}
+  legend{font-weight:800;padding:0 .35rem}
+  .settings-grid label{display:block;margin:.5rem 0 .2rem;font-weight:700}
+  .settings-grid input[type="range"]{width:100%;min-height:2.75rem}
+  .settings-grid select{width:100%;min-height:2.75rem;font:inherit;background:var(--panel-2);color:var(--text);border:2px solid var(--border);border-radius:.4rem;padding:.35rem}
+  .check{display:flex;align-items:flex-start;gap:.6rem;margin:.55rem 0}
+  .check input{width:1.5rem;height:1.5rem;margin-top:.15rem;flex:none}
+  .btn-row{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.6rem}
+
+  /* ============ Filtres ============ */
+  .tabs{display:flex;flex-wrap:wrap;gap:.5rem;margin:.8rem 0}
+  .tab[aria-pressed="true"]{background:var(--accent);color:var(--accent-text);border-color:var(--accent);font-weight:800}
+  .search-row{display:flex;flex-direction:column;gap:.35rem;margin:.8rem 0}
+  .search-row label{font-weight:800}
+  .search-row input{
+    font:inherit;min-height:2.9rem;padding:.55rem .7rem;
+    border:2px solid var(--border);border-radius:.5rem;
+    background:var(--panel-2);color:var(--text);
+  }
+  #resultCount{font-weight:700;margin:.4rem 0 1rem}
+
+  /* ============ Cartes ============ */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(min(100%,22rem),1fr));
+    gap:1rem;
+  }
+  .card{
+    background:var(--panel);
+    border:2px solid var(--border);
+    border-radius:.7rem;
+    padding:1rem;
+    display:flex;flex-direction:column;gap:.65rem;
+  }
+  .card.is-read{border-color:var(--ok);box-shadow:inset 0 0 0 3px var(--ok-bg)}
+  .card ul{margin:0;padding-left:1.25rem}
+  .card li{margin:.3rem 0}
+  .card-actions{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:auto;padding-top:.3rem}
+  .empty{border:2px dashed var(--border);border-radius:.6rem;padding:1rem;margin:1rem 0}
+
+  /* ============ Progression ============ */
+  .progress{
+    width:100%;height:1.4rem;border:2px solid var(--border);
+    border-radius:999px;overflow:hidden;background:var(--panel-2);
+    margin:.6rem 0;
+  }
+  .progress-fill{height:100%;width:0;background:var(--accent);transition:width .25s ease}
+  #progressText{font-weight:700}
+
+  /* ============ Quiz ============ */
+  .question{border:2px solid var(--border);border-radius:.6rem;padding:.8rem 1rem;margin:0 0 1rem}
+  .question.is-correct{border-color:var(--ok);background:var(--ok-bg)}
+  .question.is-wrong{border-color:var(--err);background:var(--err-bg)}
+  .option{
+    display:flex;align-items:flex-start;gap:.7rem;
+    padding:.65rem .7rem;margin:.45rem 0;
+    border:2px solid var(--border);border-radius:.5rem;
+    cursor:pointer;background:var(--panel-2);
+  }
+  .option:hover{border-color:var(--accent)}
+  .option input{width:1.4rem;height:1.4rem;margin-top:.15rem;flex:none}
+  .feedback{font-weight:700;margin:.6rem 0 0}
+  .feedback.ok{color:var(--ok)}
+  .feedback.ko{color:var(--err)}
+  #quizResult{min-height:1.6rem;font-weight:800;margin:.8rem 0;padding:.5rem;border-radius:.4rem}
+  #quizResult.ok{background:var(--ok-bg);color:var(--ok);border:2px solid var(--ok)}
+  #quizResult.ko{background:var(--err-bg);color:var(--err);border:2px solid var(--err)}
+  .quiz-actions{margin:.8rem 0}
+
+  footer{border-top:2px solid var(--border);margin-top:2rem;padding:1rem 0 2rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Aller au contenu principal</a>
+
+<div id="status" class="sr-only" role="status" aria-live="polite"></div>
+<div id="alert" class="sr-only" role="alert" aria-live="assertive"></div>
+
+<header class="site-header">
+  <div class="wrap">
+    <p class="kicker">Guide interactif — accessibilité visuelle</p>
+    <h1>SmartVision3 : prise en main basique, maîtrisée et avancée</h1>
+    <p class="lead">
+      Fiches vocalisables, contrastes commutables, quiz et progression sauvegardée sur cet appareil.
+      La page se pilote au clavier et fonctionne avec un lecteur d’écran.
+    </p>
+    <div class="quick-tools" role="group" aria-label="Outils rapides">
+      <button type="button" class="btn" id="quickContrast">Changer de thème</button>
+      <button type="button" class="btn" id="quickFont">Agrandir le texte</button>
+      <button type="button" class="btn" id="readIntro">Écouter l’introduction</button>
+      <button type="button" class="btn" id="stopVoiceTop">Arrêter la voix (Échap)</button>
+    </div>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" data-no-announce>
+  <div class="wrap">
+
+    <noscript>
+      <p class="warning">
+        JavaScript est nécessaire pour la vocalisation, les filtres, le quiz et la progression.
+        Le contenu des fiches reste lisible sans JavaScript.
+      </p>
+    </noscript>
+
+    <p class="warning" id="storageWarning" hidden>
+      La sauvegarde locale est indisponible (navigation privée ou stockage bloqué).
+      Vos réglages, votre progression et vos scores ne seront pas conservés.
+    </p>
+    <p class="warning" id="speechWarning" hidden>
+      La synthèse vocale n’est pas disponible dans ce navigateur.
+      Les messages restent accessibles aux lecteurs d’écran via les zones d’annonce.
+    </p>
+
+    <section id="intro" aria-labelledby="introTitle">
+      <h2 id="introTitle">Comment utiliser ce guide</h2>
+      <p>
+        Trois niveaux sont proposés : basique, maîtrisée et avancée. Chaque fiche peut être écoutée
+        et marquée comme lue. Votre progression est enregistrée localement sur cet appareil.
+      </p>
+      <ul>
+        <li>Naviguez avec <kbd>Tab</kbd> et <kbd>Maj+Tab</kbd>, activez avec <kbd>Entrée</kbd> ou <kbd>Espace</kbd>.</li>
+        <li>La touche <kbd>Échap</kbd> arrête immédiatement la lecture vocale.</li>
+        <li>La touche <kbd>?</kbd> ouvre l’aide des raccourcis de cette page.</li>
+        <li>Les annonces au focus sont temporisées pour éviter les répétitions lors d’un déplacement rapide.</li>
+      </ul>
+    </section>
+
+    <details id="voicePanel" class="panel">
+      <summary>Réglages de la voix, du contraste et du texte</summary>
+      <div class="settings-grid">
+
+        <fieldset>
+          <legend>Thème et contraste</legend>
+          <div class="btn-row">
+            <button type="button" class="btn" data-theme-btn="sombre" aria-pressed="true">Sombre contrasté</button>
+            <button type="button" class="btn" data-theme-btn="clair" aria-pressed="false">Clair</button>
+            <button type="button" class="btn" data-theme-btn="contraste" aria-pressed="false">Contraste maximal</button>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Taille du texte</legend>
+          <label for="fontSize">Taille de base : <output id="fontSizeOut" for="fontSize">18 px</output></label>
+          <input type="range" id="fontSize" min="16" max="30" step="1" value="18"
+                 aria-describedby="fontSizeHelp">
+          <p class="hint" id="fontSizeHelp">Agrandit l’ensemble de la page, y compris les boutons et les fiches.</p>
+        </fieldset>
+
+        <fieldset>
+          <legend>Annonces vocales</legend>
+          <p class="check">
+            <input type="checkbox" id="voiceEnabled" checked>
+            <label for="voiceEnabled">Activer la synthèse vocale de la page</label>
+          </p>
+          <p class="check">
+            <input type="checkbox" id="focusAnnounce" checked>
+            <label for="focusAnnounce">Annoncer les éléments au focus (débounce 450 ms)</label>
+          </p>
+          <p class="hint">
+            Désactivez l’annonce au focus si vous utilisez déjà un lecteur d’écran, pour éviter les doublons.
+          </p>
+
+          <label for="voiceSelect">Voix</label>
+          <select id="voiceSelect">
+            <option value="">Chargement des voix…</option>
+          </select>
+
+          <label for="rate">Vitesse : <output id="rateOut" for="rate">1.0</output></label>
+          <input type="range" id="rate" min="0.5" max="2" step="0.1" value="1">
+
+          <label for="pitch">Hauteur : <output id="pitchOut" for="pitch">1.0</output></label>
+          <input type="range" id="pitch" min="0.5" max="2" step="0.1" value="1">
+
+          <label for="volume">Volume : <output id="volumeOut" for="volume">100 %</output></label>
+          <input type="range" id="volume" min="0" max="1" step="0.05" value="1">
+
+          <div class="btn-row">
+            <button type="button" class="btn" id="testVoice">Tester la voix</button>
+            <button type="button" class="btn" id="stopVoice">Arrêter la lecture</button>
+          </div>
+        </fieldset>
+
+      </div>
+    </details>
+
+    <section aria-labelledby="modulesTitle">
+      <h2 id="modulesTitle">Fiches du guide</h2>
+
+      <div class="tabs" role="group" aria-label="Filtrer les fiches par niveau">
+        <button type="button" class="btn tab" data-level="all" aria-pressed="true">Tous les niveaux</button>
+        <button type="button" class="btn tab" data-level="1" aria-pressed="false">Niveau 1 — Basique</button>
+        <button type="button" class="btn tab" data-level="2" aria-pressed="false">Niveau 2 — Maîtrisée</button>
+        <button type="button" class="btn tab" data-level="3" aria-pressed="false">Niveau 3 — Avancée</button>
+      </div>
+
+      <div class="search-row">
+        <label for="search">Rechercher dans le guide</label>
+        <input type="search" id="search" autocomplete="off"
+               placeholder="Ex. : raccourci, Kapten, volume, TalkBack…"
+               aria-describedby="searchHelp">
+        <p class="hint" id="searchHelp">La recherche filtre les fiches du niveau sélectionné.</p>
+      </div>
+
+      <p id="resultCount" role="status" aria-live="polite">16 fiches affichées.</p>
+
+      <div id="modules" class="grid">
+
+        <!-- ================= NIVEAU 1 ================= -->
+        <article class="card" data-level="1" data-module="l1-allumer"
+                 data-tags="allumer éteindre veille redémarrer bouton marche arrêt pin sim premier démarrage">
+          <h3>Allumer, éteindre, mettre en veille</h3>
+          <ul>
+            <li><strong>Allumer :</strong> appui long sur le bouton Marche/Arrêt, sur la tranche supérieure, puis relâcher dès que l’appareil vibre.</li>
+            <li><strong>Éteindre ou redémarrer :</strong> appui long sur Marche/Arrêt, puis choisir « Marche/arrêt » et « Éteindre » ou « Redémarrer ».</li>
+            <li><strong>Appareil bloqué :</strong> maintenir Marche/Arrêt pendant 10 secondes pour forcer le redémarrage.</li>
+            <li><strong>Veille :</strong> un appui court sur Marche/Arrêt met en veille ou réveille le téléphone.</li>
+            <li><strong>Code PIN de la SIM :</strong> le saisir au clavier physique, puis valider avec OK.</li>
+          </ul>
+          <div class="card-actions">
+            <button type="button" class="btn mark-read" data-module="l1-allumer" aria-pressed="false">Marquer comme lu</button>
+            <button type="button" class="btn speak-card">Écouter cette fiche</button>
+          </div>
+        </article>
+
+        <article class="card" data-level="1" data-module="l1-clavier"
+                 data-tags="clavier touches navigation haut bas ok accueil menu retour effacer joystick relief">
+          <h3>Les touches de navigation et de fonction</h3>
+          <ul>
+            <li><strong>Haut / Bas :</strong> élément précédent ou suivant. Un appui long sélectionne le premier ou le dernier élément.</li>
+            <li><strong>OK :</strong> valide l’élément sélectionné. Un appui long ouvre le menu contextuel (modifier, supprimer, partager…).</li>
+            <li><strong>Gauche / Droite :</strong> commandes de lecture. Un appui long sur Gauche ou Droite change la commande de lecture active.</li>
+            <li><strong>Accueil, Menu, Retour, Effacer :</strong> retour à l’accueil, options de l’écran, retour arrière, suppression d’un caractère. Un appui long sur Effacer vide toute la zone de saisie.</li>
+            <li><strong>Repères tactiles :</strong> la touche OK est texturée et la touche 5 possède un relief.</li>
+          </ul>
+          <div class="card-actions">
+            <button type="button" class="btn mark-read" data-module="l1-clavier" aria-pressed="false">Marquer comme lu</button>
+            <button type="button" class="btn speak-card">Écouter cette fiche</button>
+          </div>
+        </article>
+
+        <article class="card" data-level="1" data-module="l1-volume"
+                 data-tags="volume son profils audio sonnerie appels alarmes synthèse vocale décrocher raccrocher">
+          <h3>Volume, appels et profils audio</h3>
+          <ul>
+            <li><strong>Touches Volume + et − :</strong> sur la tranche droite, elles modifient le profil audio en cours d’utilisation.</li>
+            <li><strong>Cinq profils :</strong> multimédia, appels, sonneries et notifications, alarmes, synthèse vocale.</li>
+            <li><strong>Volume de la synthèse :</strong> maintenir un doigt sur l’écran et utiliser les touches de volume.</li>
+            <li><strong>Appel entrant :</strong> OK décroche. Effacer rejette l’appel ou raccroche. Une touche de volume coupe la sonnerie pour entendre le nom de l’appelant.</li>
+          </ul>
+          <div class="card-actions">
+            <button type="button" class="btn mark-read" data-module="l1-volume" aria-pressed="false">Marquer comme lu</button>
+            <button type="button" class="btn speak-card">Écouter cette fiche</button>
+          </div>
+        </article>
+
+        <article class="card" data-level="1" data-module="l1-tactile"
+                 data-tags="écran tactile talkback gestes balayer double tap menu accessibilité suspendre">
+          <h3>Écran tactile avec TalkBack</h3>
+          <ul>
+            <li><strong>Explorer :</strong> toucher l’écran avec un doigt pour sélectionner un élément.</li>
+            <li><strong>Précédent / suivant :</strong> balayer vers la gauche ou vers la droite.</li>
+            <li><strong>Valider :</strong> taper deux fois rapidement. Pour les options contextuelles : double tap en maintenant le doigt appuyé.</li>
+            <li><strong>Gestes système :</strong> accueil, retour, volet des notifications et menu TalkBack sont accessibles par des balayages décrits dans TalkBack.</li>
+            <li><strong>Suspendre TalkBack :</strong> maintenir les deux touches de volume enfoncées pendant 3 secondes. Répéter pour réactiver.</li>
+          </ul>
+          <div class="card-actions">
+            <button type="button" class="btn mark-read" data-module="l1-tactile" aria-pressed="false">Marquer comme lu</button>
+            <button type="button" class="btn speak-card">Écouter cette fiche</button>
+          </div>
+        </article>
+
+        <article class="card" data-level="1" data-module="l1-charge"
+                 data-tags="charger batterie usb type c sans fil sim carte sd tiroir nano autonomie">
+          <h3>Charger, insérer la SIM et la carte SD</h3>
+          <ul>
+            <li><strong>Chargement filaire :</strong> câble USB Type-C fourni et chargeur secteur. Le chargement sans fil est également disponible.</li>
+            <li><strong>Précautions sans fil :</strong> ne pas placer de carte bancaire, de carte RFID, d’objet métallique ou d’aimant entre l’appareil et la station.</li>
+            <li><strong>Tiroir SIM :</strong> sur la tranche gauche, avec l’outil fourni. Cartes nano SIM uniquement. Une carte micro SD jusqu’à 128 Go peut remplacer une des deux SIM.</li>
+            <li><strong>Assistance :</strong> il est conseillé de se faire aider par une personne voyante pour insérer la SIM ou la carte SD.</li>
+            <li><strong>Autonomie indicative :</strong> environ 150 heures en veille et 12 heures en communication.</li>
+          </ul>
+          <div class="card-actions">
+            <button type="button" class="btn mark-read" data-module="l1-charge" aria-pressed="false">Marquer comme lu</button>
+            <button type="button" class="btn speak-card">Écouter cette fiche</button>
+          </div>
+        </article>
+
+        <!-- ================= NIVEAU 2 ================= -->
+        <article class="card" data-level="2" data-module="l2-raccourcis-diese"
+                 data-tags="raccourcis dièse état téléphone silencieux paramètres rapides vitesse synthèse magnitext écran tactile quicksupport">
+          <h3>Raccourcis généraux avec la touche Dièse</h3>
+          <ul>
+            <li><strong>Dièse 1 :</strong> obtenir l’état du téléphone (heure, batterie, Wi-Fi, Bluetooth, GPS, réseau).</li>
+            <li><strong>Dièse 2 :</strong> activer ou désactiver le mode silencieux.</li>
+            <li><strong>Dièse 3 :</strong> ouvrir les paramètres rapides.</li>
+            <li><strong>Dièse 4 et Dièse 5 :</strong> diminuer ou augmenter la vitesse de la synthèse vocale.</li>
+            <li><strong>Dièse 6 :</strong> activer ou désactiver MagniText.</li>
+            <li><strong>Dièse 7 :</strong> activer ou désactiver l’écran tactile.</li>
+            <li><strong>Dièse 0 :</strong> ouvrir QuickSupport.</li>
+          </ul>
+          <div class="card-actions">
+            <button type="button" class="btn mark-read" data-module="l2-raccourcis-diese" aria-pressed="false">Marquer comme lu</button>
+            <button type="button" class="btn speak-card">Écouter cette fiche</button>
+          </div>
+        </article>
+
+        <article class="card" data-level="2" data-module="l2-raccourcis-etoile"
+                 data-tags="raccourcis étoile copier coller couper clavier kapsys android tout sélectionner curseur">
+          <h3>Raccourcis de saisie avec la touche Étoile</h3>
+          <ul>
+            <li><strong>Étoile 1 et Étoile 2 :</strong> déplacer le curseur en début ou en fin de zone de modification.</li>
+            <li><strong>Étoile 3 :</strong> couper. <strong>Étoile 6 :</strong> copier. <strong>Étoile 9 :</strong> coller. <strong>Étoile 0 :</strong> tout sélectionner.</li>
+            <li><strong>Étoile 7 :</strong> utiliser le clavier virtuel Kapsys. <strong>Étoile 8 :</strong> utiliser le clavier virtuel Android.</li>
+            <li>Ces raccourcis ne fonctionnent que dans une zone de saisie de texte.</li>
+          </ul>
+          <div class="card-actions">
+            <button type="button" class="btn mark-read" data-module="l2-raccourcis-etoile" aria-pressed="false">Marquer comme lu</button>
+            <button type="button" class="btn speak-card">Écouter cette fiche</button>
+          </div>
+        </article>
+
+        <article class="card" data-level="2" data-module="l2-saisie"
+                 data-tags="écrire saisie clavier physique multitap dictée reconnaissance vocale clavier kapsys android suggestions">
+          <h3>Écrire : clavier physique, dictée et claviers virtuels</h3>
+          <ul>
+            <li><strong>Clavier physique :</strong> appuyer plusieurs fois rapidement sur une touche pour parcourir ses caractères. La touche 1 donne la ponctuation, Étoile verrouille majuscule/minuscule/numérique, Dièse insère le caractère dièse.</li>
+            <li><strong>Dictée :</strong> appui court sur le bouton de commande vocale, attendre le signal sonore, puis dicter. La ponctuation peut être énoncée vocalement.</li>
+            <li><strong>Clavier Kapsys :</strong> pas de touches tactiles, affichage en gros caractères. La touche Menu donne accès aux émojis, caractères spéciaux, options d’édition et réglages.</li>
+            <li><strong>Suggestions :</strong> la touche Retour permet de parcourir les propositions, OK valide la proposition choisie.</li>
+          </ul>
+          <div class="card-actions">
+            <button type="button" class="btn mark-read" data-module="l2-saisie" aria-pressed="false">Marquer comme lu</button>
+            <button type="button" class="btn speak-card">Écouter cette fiche</button>
+          </div>
+        </article>
+
+        <article class="card" data-level="2" data-module="l2-notifications"
+                 data-tags="notifications volet applications récentes paramètres rapides menu talkback effacer">
+          <h3>Notifications, applications récentes et paramètres rapides</h3>
+          <ul>
+            <li><strong>Volet des notifications :</strong> appui long sur Retour. Parcourir avec Haut et Bas, ouvrir avec OK, supprimer avec Effacer.</li>
+            <li><strong>Tout supprimer :</strong> sélectionner le dernier élément « Supprimer toutes les notifications ».</li>
+            <li><strong>Applications récentes :</strong> appui long sur Accueil. Effacer ferme l’application sélectionnée.</li>
+            <li><strong>Menu TalkBack :</strong> appui long sur Menu.</li>
+            <li><strong>Paramètres rapides :</strong> Dièse 3, ou via le menu de l’écran d’accueil.</li>
+          </ul>
+          <div class="card-actions">
+            <button type="button" class="btn mark-read" data-module="l2-notifications" aria-pressed="false">Marquer comme lu</button>
+            <button type="button" class="btn speak-card">Écouter cette fiche</button>
+          </div>
+        </article>
+
+        <article class="card" data-level="2" data-module="l2-acces-rapide"
+                 data-tags="accès rapide touches numériques répondeur appel répondre annonce réveil état téléphone">
+          <h3>Accès rapide, appels et annonces au réveil</h3>
+          <ul>
+            <li><strong>Accès rapide :</strong> depuis l’écran d’accueil, appui long sur une touche numérique pour lui associer une application ou un contact. La touche 1 est associée par défaut au répondeur.</li>
+            <li><strong>Répondre à un appel :</strong> avec OK, ou avec n’importe quelle touche numérique si l’option KAPSYS est activée.</li>
+            <li><strong>État du téléphone :</strong> Dièse 1.</li>
+            <li><strong>Annonce au réveil :</strong> dans Accessibilité KAPSYS, choisir les informations vocalisées à la sortie de veille : date, batterie, réseau, appels manqués, messages, mises à jour.</li>
+          </ul>
+          <div class="card-actions">
+            <button type="button" class="btn mark-read" data-module="l2-acces-rapide" aria-pressed="false">Marquer comme lu</button>
+            <button type="button" class="btn speak-card">Écouter cette fiche</button>
+          </div>
+        </article>
+
+        <!-- ================= NIVEAU 3 ================= -->
+        <article class="card" data-level="3" data-module="l3-kapsys"
+                 data-tags="accessibilité kapsys magnitext écran tactile raccourcis annonce réveil accès rapide">
+          <h3>Accessibilité KAPSYS</h3>
+          <ul>
+            <li><strong>MagniText :</strong> Dièse 6. Affiche en gros caractères, dans un bandeau, le texte sélectionné. Couleur, taille, vitesse et position sont paramétrables.</li>
+            <li><strong>Désactiver l’écran tactile :</strong> Dièse 7.</li>
+            <li><strong>Raccourcis personnalisables :</strong> jusqu’à 20 combinaisons Étoile ou Dièse + touche 0 à 9.</li>
+            <li><strong>Annonce au réveil :</strong> sélection des informations annoncées à la sortie de veille.</li>
+            <li><strong>Accès rapide :</strong> association d’une application ou d’un contact à une touche numérique.</li>
+          </ul>
+          <div class="card-actions">
+            <button type="button" class="btn mark-read" data-module="l3-kapsys" aria-pressed="false">Marquer comme lu</button>
+            <button type="button" class="btn speak-card">Écouter cette fiche</button>
+          </div>
+        </article>
+
+        <article class="card" data-level="3" data-module="l3-talkback"
+                 data-tags="talkback commandes lecture gestes menus capteur proximité braille plage braille suspendre réinitialiser 111">
+          <h3>TalkBack avancé</h3>
+          <ul>
+            <li><strong>Commandes de lecture :</strong> appui long sur Gauche ou Droite pour changer la commande active ; appui court pour passer à l’élément précédent ou suivant selon cette commande.</li>
+            <li><strong>Personnalisation :</strong> gestes, menus, commandes de lecture, niveau de verbosité, sons et vibration.</li>
+            <li><strong>Capteur de proximité :</strong> passer la main devant le capteur coupe l’annonce vocale en cours.</li>
+            <li><strong>Braille :</strong> clavier braille à l’écran et association d’une plage braille.</li>
+            <li><strong>Dépannage :</strong> composer <kbd>*#111#</kbd> depuis l’écran d’accueil pour réinitialiser les paramètres TalkBack.</li>
+          </ul>
+          <div class="card-actions">
+            <button type="button" class="btn mark-read" data-module="l3-talkback" aria-pressed="false">Marquer comme lu</button>
+            <button type="button" class="btn speak-card">Écouter cette fiche</button>
+          </div>
+        </article>
+
+        <article class="card" data-level="3" data-module="l3-kapten"
+                 data-tags="kapten navigation gps piéton voiture guidage cardinal k-tag navigation libre distance cap satellites">
+          <h3>Kapten : navigation et K-Tags</h3>
+          <ul>
+            <li><strong>Modes :</strong> navigation piétonne, voiture, guidage cardinal, lecture de carte, parcours piéton et navigation libre.</li>
+            <li><strong>Pendant la navigation :</strong> 0 pause ou reprise du guidage vocal, 1 où suis-je, 2 dernière instruction, 3 prochaine instruction, 4 vitesse actuelle, 5 vitesse limite, 6 distance restante, 7 adresses utiles proches, 8 navigation libre, 9 réception satellite, Dièse heure d’arrivée.</li>
+            <li><strong>K-Tag :</strong> créer depuis la position courante, une nouvelle adresse ou des coordonnées, puis lui donner un nom et une catégorie.</li>
+            <li><strong>Guidage cardinal :</strong> direction cardinale, distance et cap en indication horaire. Il faut être en mouvement pour obtenir un cap fiable.</li>
+          </ul>
+          <div class="card-actions">
+            <button type="button" class="btn mark-read" data-module="l3-kapten" aria-pressed="false">Marquer comme lu</button>
+            <button type="button" class="btn speak-card">Écouter cette fiche</button>
+          </div>
+        </article>
+
+        <article class="card" data-level="3" data-module="l3-lecture"
+                 data-tags="livre audio daisy epub pdf notes lecture raccourcis sections mot phrase caractère">
+          <h3>Livre audio et Notes : raccourcis de lecture</h3>
+          <ul>
+            <li><strong>Livre audio :</strong> 0 lecture ou pause, 1 section précédente, 2 section suivante, 4 et 5 diminuent ou augmentent le niveau de navigation, 7 et 8 reculent ou avancent rapidement (MP3).</li>
+            <li><strong>Formats pris en charge :</strong> Daisy 2.02, Daisy 3.0, EPUB, EPUB3, DOC, DOCX, PDF, TXT et HTML. Les documents se placent dans le dossier « books ».</li>
+            <li><strong>Notes en lecture avancée :</strong> 0 pause, 1 et 2 caractère gauche ou droit, 4 et 5 mot gauche ou droit, 7 et 8 phrase gauche ou droite, Étoile début de la note, Dièse fin de la note.</li>
+          </ul>
+          <div class="card-actions">
+            <button type="button" class="btn mark-read" data-module="l3-lecture" aria-pressed="false">Marquer comme lu</button>
+            <button type="button" class="btn speak-card">Écouter cette fiche</button>
+          </div>
+        </article>
+
+        <article class="card" data-level="3" data-module="l3-outils"
+                 data-tags="détecteur billets couleurs lumière loupe nfc radio fm zoom contraste étiquette">
+          <h3>Outils de perception : détecteurs, loupe, NFC, radio</h3>
+          <ul>
+            <li><strong>Détecteur de billets :</strong> billet à plat, téléphone entre 20 et 30 cm, valeur annoncée vocalement.</li>
+            <li><strong>Détecteur de couleurs :</strong> téléphone entre 10 et 15 cm au-dessus de la cible, annonce répétée toutes les 3 secondes ou lors d’un changement de couleur.</li>
+            <li><strong>Détecteur de lumière :</strong> annonce du pourcentage de luminosité détecté.</li>
+            <li><strong>Loupe :</strong> touches 2 et 3 pour le zoom, OK pour la mise au point, 1 pour l’éclairage, Étoile pour figer l’écran, 0 pour prendre une photo, Dièse pour changer de contraste.</li>
+            <li><strong>NFC :</strong> écrire ou lire des étiquettes pour un appel, un réglage, une application, un lien, un texte, un réseau Wi-Fi ou un mémo vocal.</li>
+            <li><strong>Radio FM :</strong> 1 station précédente, 2 liste des stations, 3 station suivante, 4 et 6 fréquence, 5 saisie manuelle, 7 et 9 favoris, 8 enregistrement, 0 lecture ou pause, Étoile ajout aux favoris.</li>
+          </ul>
+          <div class="card-actions">
+            <button type="button" class="btn mark-read" data-module="l3-outils" aria-pressed="false">Marquer comme lu</button>
+            <button type="button" class="btn speak-card">Écouter cette fiche</button>
+          </div>
+        </article>
+
+        <article class="card" data-level="3" data-module="l3-maintenance"
+                 data-tags="mise à jour système réinitialisation usine sauvegarde sos 333 urgence batterie">
+          <h3>Mises à jour, sauvegarde et réinitialisation</h3>
+          <ul>
+            <li><strong>Mise à jour :</strong> Paramètres, À propos du téléphone, Mises à jour du système. Prévoir au moins 30 % de batterie, une connexion Wi-Fi et retirer la carte SD si elle est présente.</li>
+            <li><strong>Sauvegarde :</strong> Applications, Paramètres, Système, Sauvegarde, Sauvegarder maintenant. Une sauvegarde du compte Google est recommandée avant toute réinitialisation.</li>
+            <li><strong>Réinitialisation d’usine :</strong> composer <kbd>*#333#</kbd> depuis l’écran d’accueil. Cette action efface les données, les comptes, les applications, les photos et la musique.</li>
+            <li><strong>SOS :</strong> appui long sur Marche/Arrêt, puis SOS. La fonction doit être activée et configurée au préalable (numéros, appel, SMS, alarme).</li>
+          </ul>
+          <div class="card-actions">
+            <button type="button" class="btn mark-read" data-module="l3-maintenance" aria-pressed="false">Marquer comme lu</button>
+            <button type="button" class="btn speak-card">Écouter cette fiche</button>
+          </div>
+        </article>
+
+      </div>
+
+      <p id="emptyState" class="empty" hidden>
+        Aucune fiche ne correspond à votre recherche. Essayez un autre mot-clé ou choisissez « Tous les niveaux ».
+      </p>
+    </section>
+
+    <section aria-labelledby="progressTitle">
+      <h2 id="progressTitle">Ma progression</h2>
+      <div id="progressBar" class="progress" role="progressbar"
+           aria-labelledby="progressTitle"
+           aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
+           aria-valuetext="0 fiche lue sur 16">
+        <div id="progressFill" class="progress-fill" aria-hidden="true"></div>
+      </div>
+      <p id="progressText">0 fiche lue sur 16 (0 %).</p>
+      <button type="button" class="btn" id="resetProgress">Réinitialiser la progression</button>
+    </section>
+
+    <section id="quiz" aria-labelledby="quizTitle">
+      <h2 id="quizTitle">Quiz de vérification</h2>
+      <p id="quizHelp">
+        Les questions correspondent au niveau sélectionné plus haut. Choisissez une réponse par question,
+        puis validez. Le détail et la bonne réponse s’affichent sous chaque question.
+      </p>
+      <p id="quizBest" class="hint">Aucun score enregistré pour cette sélection.</p>
+      <form id="quizForm" novalidate></form>
+      <div id="quizResult" role="status" aria-live="polite" tabindex="-1" data-no-announce></div>
+    </section>
+
+    <section id="help" aria-labelledby="shortcutsTitle">
+      <h2 id="shortcutsTitle" tabindex="-1" data-no-announce>Raccourcis clavier de cette page</h2>
+      <details id="helpPanel" class="panel">
+        <summary>Afficher l’aide des raccourcis</summary>
+        <ul>
+          <li><kbd>Tab</kbd> / <kbd>Maj+Tab</kbd> : avancer ou reculer dans les éléments interactifs.</li>
+          <li><kbd>Entrée</kbd> ou <kbd>Espace</kbd> : activer un bouton, une case à cocher ou un onglet.</li>
+          <li><kbd>Échap</kbd> : arrêter immédiatement la synthèse vocale.</li>
+          <li><kbd>?</kbd> : ouvrir cette aide et placer le focus sur son titre.</li>
+          <li>Les flèches du clavier parcourent les curseurs de réglage et les groupes de boutons radio du quiz.</li>
+        </ul>
+      </details>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>
+      Guide non officiel, basé sur le manuel utilisateur SmartVision3. Les fonctions disponibles peuvent varier
+      selon la version logicielle, le modèle et l’opérateur.
+    </p>
+    <p>
+      Fichier unique <code>index.html</code> : peut être publié tel quel sur GitHub Pages.
+      Aucune donnée n’est envoyée à un serveur ; réglages, progression et scores restent dans le stockage local du navigateur.
+    </p>
+  </div>
+</footer>
+
 <script>
-/* ============================================================================
-   SmartVision3 — Guide interactif
-   Script complet, autonome, avec auto-diagnostic visible.
-   Version : 2026-10-29
-   ============================================================================ */
 (function () {
-  "use strict";
+  'use strict';
 
-  /* ==========================================================================
-     SECTION 0 — AUTO-DIAGNOSTIC VISIBLE
-     Affiche un bandeau en haut de page pour confirmer que le script tourne.
-     ========================================================================== */
-  function afficherBandeauDiagnostic() {
-    if (document.getElementById("sv3-diag")) return;
-    var bandeau = document.createElement("div");
-    bandeau.id = "sv3-diag";
-    bandeau.setAttribute("role", "status");
-    bandeau.setAttribute("aria-live", "polite");
-    bandeau.style.cssText = [
-      "position:fixed",
-      "top:0",
-      "left:0",
-      "right:0",
-      "z-index:9999",
-      "background:#0a7d32",
-      "color:#ffffff",
-      "font-family:system-ui,sans-serif",
-      "font-size:14px",
-      "font-weight:700",
-      "padding:10px 14px",
-      "text-align:center",
-      "box-shadow:0 2px 6px rgba(0,0,0,.4)"
-    ].join(";");
-    bandeau.textContent = "✅ Script SmartVision3 chargé — les interactions sont actives.";
-    document.body.appendChild(bandeau);
-    setTimeout(function () {
-      bandeau.style.transition = "opacity 1s";
-      bandeau.style.opacity = "0";
-      setTimeout(function () { bandeau.remove(); }, 1200);
-    }, 4000);
+  /* ============================================================
+     Utilitaires et gestion d’erreurs
+     ============================================================ */
+  function $(selector, root) {
+    return (root || document).querySelector(selector);
+  }
+  function $$(selector, root) {
+    return Array.from((root || document).querySelectorAll(selector));
+  }
+  function norm(value) {
+    return String(value == null ? '' : value)
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
+  }
+  function clampNum(value, min, max, fallback) {
+    const n = Number(value);
+    if (!isFinite(n)) return fallback;
+    return Math.min(max, Math.max(min, n));
   }
 
-  function afficherErreurDiagnostic(message) {
-    if (document.getElementById("sv3-diag")) return;
-    var bandeau = document.createElement("div");
-    bandeau.id = "sv3-diag";
-    bandeau.setAttribute("role", "alert");
-    bandeau.style.cssText = [
-      "position:fixed",
-      "top:0",
-      "left:0",
-      "right:0",
-      "z-index:9999",
-      "background:#a4160a",
-      "color:#ffffff",
-      "font-family:system-ui,sans-serif",
-      "font-size:14px",
-      "font-weight:700",
-      "padding:12px 14px",
-      "text-align:center",
-      "box-shadow:0 2px 6px rgba(0,0,0,.4)"
-    ].join(";");
-    bandeau.textContent = "❌ " + message;
-    document.body.appendChild(bandeau);
-  }
-
-  /* ==========================================================================
-     SECTION 1 — HELPERS
-     ========================================================================== */
-  var $  = function (sel, ctx) { return (ctx || document).querySelector(sel); };
-  var $$ = function (sel, ctx) { return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); };
-  var log = function () {
-    try { console.log.apply(console, ["[SV3]"].concat(Array.prototype.slice.call(arguments))); }
-    catch (e) {}
-  };
-
-  /* ==========================================================================
-     SECTION 2 — SYNTHÈSE VOCALE
-     ========================================================================== */
-  var synth = window.speechSynthesis || null;
-  var voixFr = null;
-  var voixActivee = true;
-  var lastSpoken = "";
-  var lastSpokenAt = 0;
-  var focusTimer = null;
-
-  function chargerVoix() {
-    if (!synth) return;
-    var toutes = synth.getVoices();
-    if (!toutes || toutes.length === 0) return;
-    for (var i = 0; i < toutes.length; i++) {
-      var v = toutes[i];
-      if (v.lang && v.lang.toLowerCase().indexOf("fr") === 0) { voixFr = v; break; }
-    }
-    if (!voixFr) voixFr = toutes[0] || null;
-    log("voix utilisée :", voixFr ? voixFr.name : "aucune");
-  }
-
-  if (synth) {
-    chargerVoix();
-    if (typeof synth.onvoiceschanged !== "undefined") {
-      synth.onvoiceschanged = chargerVoix;
-    }
-  } else {
-    log("synthèse vocale indisponible sur ce navigateur");
-  }
-
-  function parler(texte, opts) {
-    if (!synth || !texte) return;
-    var t = String(texte).replace(/\s+/g, " ").trim();
-    if (!t) return;
-    var o = opts || {};
-    try {
-      synth.cancel();
-      var u = new SpeechSynthesisUtterance(t);
-      u.lang = "fr-FR";
-      u.rate = o.rate || 1;
-      u.pitch = o.pitch || 1;
-      u.volume = 1;
-      if (voixFr) u.voice = voixFr;
-      u.onerror = function (e) { log("erreur TTS :", e.error); };
-      synth.speak(u);
-      lastSpoken = t;
-      lastSpokenAt = Date.now();
-    } catch (e) {
-      log("impossible de parler :", e);
+  let globalErrorShown = false;
+  function reportError(message, error, assertive) {
+    if (error) console.error('[SmartVision3] ' + message, error);
+    if (globalErrorShown) return;
+    globalErrorShown = true;
+    const el = document.getElementById(assertive ? 'alert' : 'status');
+    if (el) {
+      el.textContent = '';
+      window.setTimeout(function () {
+        el.textContent = message;
+      }, 60);
     }
   }
 
-  function arreterVoix() {
-    if (synth) { try { synth.cancel(); } catch (e) {} }
-    lastSpoken = "";
-  }
-
-  /* ==========================================================================
-     SECTION 3 — BOUTONS VOIX / STOP / RACCOURCI ALT+L
-     ========================================================================== */
-  var btnVoix = $("#btn-voix");
-  var btnStop = $("#btn-stop");
-
-  if (btnVoix) {
-    btnVoix.addEventListener("click", function () {
-      voixActivee = !voixActivee;
-      btnVoix.setAttribute("aria-pressed", String(voixActivee));
-      btnVoix.textContent = voixActivee
-        ? "🔊 Voix au focus : activée"
-        : "🔇 Voix au focus : désactivée";
-      if (!voixActivee) arreterVoix();
-      setTimeout(function () {
-        parler(voixActivee ? "Voix au focus activée" : "Voix au focus désactivée");
-      }, 120);
-    });
-  }
-
-  if (btnStop) {
-    btnStop.addEventListener("click", arreterVoix);
-  }
-
-  document.addEventListener("keydown", function (e) {
-    if (e.altKey && (e.key === "l" || e.key === "L")) {
-      e.preventDefault();
-      arreterVoix();
-      if (btnVoix) {
-        voixActivee = false;
-        btnVoix.setAttribute("aria-pressed", "false");
-        btnVoix.textContent = "🔇 Voix au focus : désactivée";
+  window.addEventListener('error', function (event) {
+    console.error('[SmartVision3] erreur globale', event.error || event.message);
+    if (!globalErrorShown) {
+      globalErrorShown = true;
+      const el = document.getElementById('alert');
+      if (el) {
+        el.textContent = 'Une erreur technique est survenue dans la page. Certaines fonctions peuvent être indisponibles.';
       }
     }
   });
 
-  /* ==========================================================================
-     SECTION 4 — LECTURE AU FOCUS (avec debounce)
-     ========================================================================== */
-  function extraireTexte(cible) {
-    if (!cible || !cible.tagName) return "";
-    var tag = cible.tagName.toUpperCase();
-    if (tag === "SUMMARY" || tag === "BUTTON" || tag === "LABEL" || tag === "A") {
-      return cible.textContent || "";
-    }
-    if (tag === "SELECT") {
-      var opt = cible.options[cible.selectedIndex];
-      return opt ? opt.text : "";
-    }
-    if (tag === "INPUT") {
-      var lab = cible.closest("label");
-      if (lab) return lab.textContent || "";
-      return cible.getAttribute("aria-label") || cible.value || cible.placeholder || "";
-    }
-    return cible.textContent || "";
-  }
-
-  document.addEventListener("focusin", function (e) {
-    if (!voixActivee) return;
-    var cible = e.target;
-    if (!cible || cible === document.body) return;
-    var sel = "summary, button, input, select, label, a, [tabindex]";
-    if (!cible.matches || !cible.matches(sel)) return;
-
-    var texte = extraireTexte(cible);
-    if (!texte || texte === lastSpoken) return;
-
-    if (focusTimer) clearTimeout(focusTimer);
-    focusTimer = setTimeout(function () {
-      if (!voixActivee) return;
-      if (texte === lastSpoken && (Date.now() - lastSpokenAt) < 800) return;
-      parler(texte);
-    }, 220);
-  }, true);
-
-  /* ==========================================================================
-     SECTION 5 — BOUTONS « LIRE À VOIX HAUTE » DES CARTES
-     ========================================================================== */
-  $$(".outils-carte .lire").forEach(function (btn) {
-    btn.addEventListener("click", function (e) {
-      e.preventDefault();
-      var carte = btn.closest("article.carte");
-      if (!carte) return;
-      var corps = carte.querySelector(".corps");
-      if (!corps) return;
-      lastSpoken = "";
-      parler(corps.innerText || corps.textContent || "");
-    });
+  window.addEventListener('unhandledrejection', function (event) {
+    console.error('[SmartVision3] promesse rejetée', event.reason);
   });
 
-  /* ==========================================================================
-     SECTION 6 — NAVIGATION PAR NIVEAU (onglets)
-     ========================================================================== */
-  var onglets = $$(".onglet");
-  var blocs = {
-    basique:   $("#bloc-basique"),
-    maitrisee: $("#bloc-maitrisee"),
-    avancee:   $("#bloc-avancee")
+  /* ============================================================
+     Stockage local sécurisé
+     ============================================================ */
+  const Store = {
+    available: (function () {
+      try {
+        const key = 'sv3.test';
+        window.localStorage.setItem(key, '1');
+        window.localStorage.removeItem(key);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    })(),
+    get: function (key, fallback) {
+      if (!this.available) return fallback;
+      try {
+        const raw = window.localStorage.getItem('sv3.' + key);
+        return raw === null ? fallback : JSON.parse(raw);
+      } catch (e) {
+        console.warn('Lecture du stockage local impossible', e);
+        return fallback;
+      }
+    },
+    set: function (key, value) {
+      if (!this.available) return false;
+      try {
+        window.localStorage.setItem('sv3.' + key, JSON.stringify(value));
+        return true;
+      } catch (e) {
+        console.warn('Écriture dans le stockage local impossible', e);
+        return false;
+      }
+    }
   };
 
-  function replierFiches() {
-    $$("article.carte details").forEach(function (d) { d.open = false; });
+  /* ============================================================
+     Synthèse vocale : voix asynchrones, anti-conflit, debounce
+     ============================================================ */
+  const Speech = (function () {
+    const supported =
+      typeof window.speechSynthesis !== 'undefined' &&
+      typeof window.SpeechSynthesisUtterance === 'function';
+    const synth = supported ? window.speechSynthesis : null;
+
+    const prefs = {
+      enabled: true,
+      focus: true,
+      voiceURI: '',
+      rate: 1,
+      pitch: 1,
+      volume: 1
+    };
+
+    let voices = [];
+    let token = 0;
+    let focusTimer = 0;
+    let pollTimer = 0;
+    let pollCount = 0;
+
+    function getVoicesSafe() {
+      if (!synth) return [];
+      try {
+        return Array.from(synth.getVoices() || []);
+      } catch (e) {
+        console.warn('getVoices a échoué', e);
+        return [];
+      }
+    }
+
+    function chooseVoice() {
+      if (!voices.length) return null;
+      if (prefs.voiceURI) {
+        const saved = voices.find(function (v) { return v.voiceURI === prefs.voiceURI; });
+        if (saved) return saved;
+      }
+      const french = voices.find(function (v) { return /^fr[-_]/i.test(v.lang || ''); });
+      return french || voices[0] || null;
+    }
+
+    function fillSelect() {
+      const select = document.getElementById('voiceSelect');
+      if (!select) return;
+      const wanted = prefs.voiceURI;
+      select.textContent = '';
+
+      const auto = document.createElement('option');
+      auto.value = '';
+      auto.textContent = 'Voix automatique (français si disponible)';
+      select.appendChild(auto);
+
+      voices.forEach(function (voice) {
+        const option = document.createElement('option');
+        option.value = voice.voiceURI;
+        option.textContent = voice.name + ' (' + voice.lang + ')' + (voice.default ? ' — voix par défaut' : '');
+        select.appendChild(option);
+      });
+
+      select.value = voices.some(function (v) { return v.voiceURI === wanted; }) ? wanted : '';
+    }
+
+    function refreshVoices() {
+      voices = getVoicesSafe();
+      if (!voices.length) return false;
+      fillSelect();
+      if (pollTimer) {
+        window.clearInterval(pollTimer);
+        pollTimer = 0;
+      }
+      return true;
+    }
+
+    function startVoicePolling() {
+      if (!supported) return;
+      refreshVoices();
+      if (voices.length || pollTimer) return;
+      pollCount = 0;
+      pollTimer = window.setInterval(function () {
+        pollCount += 1;
+        if (refreshVoices() || pollCount > 20) {
+          window.clearInterval(pollTimer);
+          pollTimer = 0;
+        }
+      }, 300);
+    }
+
+    function clearFocusTimer() {
+      if (focusTimer) {
+        window.clearTimeout(focusTimer);
+        focusTimer = 0;
+      }
+    }
+
+    function stop() {
+      token += 1;
+      clearFocusTimer();
+      if (!synth) return;
+      try {
+        synth.cancel();
+      } catch (e) {
+        console.warn('Arrêt de la synthèse impossible', e);
+      }
+    }
+
+    function speak(text, options) {
+      options = options || {};
+      clearFocusTimer();
+
+      const message = String(text == null ? '' : text).replace(/\s+/g, ' ').trim();
+      if (!message) return false;
+      if (!supported) return false;
+      if (!prefs.enabled && !options.force) return false;
+
+      token += 1;
+      const myToken = token;
+
+      try { synth.cancel(); } catch (e) { /* ignoré */ }
+      try { if (synth.paused) synth.resume(); } catch (e) { /* ignoré */ }
+
+      let utterance;
+      try {
+        utterance = new SpeechSynthesisUtterance(message.slice(0, 4000));
+      } catch (e) {
+        reportError('La synthèse vocale n’a pas pu être initialisée.', e, false);
+        return false;
+      }
+
+      const voice = chooseVoice();
+      if (voice) {
+        utterance.voice = voice;
+        utterance.lang = voice.lang || 'fr-FR';
+      } else {
+        utterance.lang = 'fr-FR';
+      }
+      utterance.rate = clampNum(prefs.rate, 0.5, 2, 1);
+      utterance.pitch = clampNum(prefs.pitch, 0.5, 2, 1);
+      utterance.volume = clampNum(prefs.volume, 0, 1, 1);
+
+      utterance.onerror = function (event) {
+        if (myToken !== token) return;
+        const code = event && event.error ? event.error : 'inconnu';
+        if (code === 'interrupted' || code === 'canceled') return;
+        reportError('La synthèse vocale a signalé une erreur : ' + code + '.', null, false);
+      };
+
+      window.setTimeout(function () {
+        if (myToken !== token) return;
+        try {
+          synth.speak(utterance);
+        } catch (e) {
+          reportError('La lecture vocale n’a pas pu démarrer.', e, false);
+        }
+      }, 0);
+
+      return true;
+    }
+
+    function textOf(node) {
+      const clone = node.cloneNode(true);
+      Array.from(clone.querySelectorAll('input, select, textarea, output, button, script, style'))
+        .forEach(function (n) { n.remove(); });
+      return (clone.textContent || '').replace(/\s+/g, ' ').trim();
+    }
+
+    function controlValue(el) {
+      if (!el) return '';
+      const tag = el.tagName;
+      if (el.type === 'checkbox' || el.type === 'radio') {
+        return el.checked ? 'coché' : 'non coché';
+      }
+      if (el.type === 'range') return 'valeur ' + el.value;
+      if (tag === 'SELECT') {
+        const opt = el.selectedIndex >= 0 ? el.options[el.selectedIndex] : null;
+        return opt ? (opt.textContent || '').trim() : '';
+      }
+      if (el.type === 'search' || el.type === 'text' || tag === 'TEXTAREA') {
+        return el.value ? 'contenu : ' + el.value : '';
+      }
+      return '';
+    }
+
+    function labelFor(el) {
+      if (!el || el.nodeType !== 1) return '';
+      if (el.closest('[data-no-announce], [aria-hidden="true"]')) return '';
+
+      let text = '';
+      try {
+        const ariaLabel = el.getAttribute('aria-label');
+        const labelledBy = el.getAttribute('aria-labelledby');
+
+        if (ariaLabel && ariaLabel.trim()) {
+          text = ariaLabel.trim();
+        } else if (labelledBy) {
+          text = labelledBy.split(/\s+/).map(function (id) {
+            const node = document.getElementById(id);
+            return node ? textOf(node) : '';
+          }).filter(Boolean).join(' ');
+        } else if (el.id) {
+          const label = document.querySelector('label[for="' + el.id + '"]');
+          if (label) text = textOf(label);
+        }
+
+        if (!text) {
+          const wrappingLabel = el.closest('label');
+          if (wrappingLabel) text = textOf(wrappingLabel);
+        }
+
+        if (!text && el.matches('button, a, summary, [role="button"]')) {
+          text = textOf(el);
+        }
+
+        if (!text && /^H[1-6]$/.test(el.tagName)) {
+          text = textOf(el);
+        }
+
+        if (!text) text = textOf(el);
+      } catch (e) {
+        return '';
+      }
+
+      const value = controlValue(el);
+      if (value) text += ', ' + value;
+
+      if (el.getAttribute('aria-pressed') === 'true') text += ', activé';
+      if (el.getAttribute('aria-pressed') === 'false') text += ', désactivé';
+
+      const expanded = el.getAttribute('aria-expanded');
+      if (expanded !== null) text += expanded === 'true' ? ', déployé' : ', replié';
+
+      return text.replace(/\s+/g, ' ').trim().slice(0, 240);
+    }
+
+    function scheduleFocus(el) {
+      if (!supported || !prefs.enabled || !prefs.focus) return;
+      if (!el || el === document.body || el === document.documentElement) return;
+
+      clearFocusTimer();
+      const text = labelFor(el);
+      if (!text) return;
+
+      focusTimer = window.setTimeout(function () {
+        focusTimer = 0;
+        speak(text);
+      }, 450);
+    }
+
+    if (supported) {
+      try {
+        if (typeof synth.addEventListener === 'function') {
+          synth.addEventListener('voiceschanged', refreshVoices);
+        } else {
+          synth.onvoiceschanged = refreshVoices;
+        }
+      } catch (e) {
+        console.warn('Écoute de voiceschanged impossible', e);
+      }
+    }
+
+    function setPrefs(partial) {
+      if (!partial || typeof partial !== 'object') return;
+      if (typeof partial.enabled !== 'undefined') prefs.enabled = !!partial.enabled;
+      if (typeof partial.focus !== 'undefined') prefs.focus = !!partial.focus;
+      if (typeof partial.voiceURI === 'string') prefs.voiceURI = partial.voiceURI;
+      if (typeof partial.rate !== 'undefined') prefs.rate = clampNum(partial.rate, 0.5, 2, 1);
+      if (typeof partial.pitch !== 'undefined') prefs.pitch = clampNum(partial.pitch, 0.5, 2, 1);
+      if (typeof partial.volume !== 'undefined') prefs.volume = clampNum(partial.volume, 0, 1, 1);
+    }
+
+    return {
+      isSupported: function () { return supported; },
+      startVoicePolling: startVoicePolling,
+      setPrefs: setPrefs,
+      getPrefs: function () { return Object.assign({}, prefs); },
+      speak: speak,
+      stop: stop,
+      scheduleFocus: scheduleFocus,
+      clearFocusTimer: clearFocusTimer
+    };
+  })();
+
+  /* ============================================================
+     Annonces accessibles (régions live + voix)
+     ============================================================ */
+  let announceTimer = 0;
+  function announce(message, options) {
+    options = options || {};
+    if (!message) return;
+    const el = document.getElementById(options.assertive ? 'alert' : 'status');
+    if (el) {
+      el.textContent = '';
+      window.clearTimeout(announceTimer);
+      announceTimer = window.setTimeout(function () {
+        el.textContent = message;
+      }, 60);
+    }
+    if (options.speak !== false) Speech.speak(message);
   }
 
-  function afficherNiveau(niveau) {
-    onglets.forEach(function (b) {
-      var actif = b.getAttribute("data-niveau") === niveau;
-      b.setAttribute("aria-pressed", actif ? "true" : "false");
+  /* ============================================================
+     Réglages
+     ============================================================ */
+  const settings = {
+    theme: 'sombre',
+    fontSize: 18,
+    voiceEnabled: true,
+    focusAnnounce: true,
+    voiceURI: '',
+    rate: 1,
+    pitch: 1,
+    volume: 1
+  };
+
+  const THEME_NAMES = {
+    sombre: 'Sombre contrasté',
+    clair: 'Clair',
+    contraste: 'Contraste maximal'
+  };
+
+  function loadSettings() {
+    const storedTheme = Store.get('theme', 'sombre');
+    settings.theme = ['sombre', 'clair', 'contraste'].indexOf(storedTheme) !== -1
+      ? storedTheme
+      : 'sombre';
+
+    settings.fontSize = clampNum(Store.get('fontSize', 18), 16, 30, 18);
+    settings.voiceEnabled = Store.get('voiceEnabled', true) !== false;
+    settings.focusAnnounce = Store.get('focusAnnounce', true) !== false;
+
+    const storedVoice = Store.get('voiceURI', '');
+    settings.voiceURI = typeof storedVoice === 'string' ? storedVoice : '';
+
+    settings.rate = clampNum(Store.get('rate', 1), 0.5, 2, 1);
+    settings.pitch = clampNum(Store.get('pitch', 1), 0.5, 2, 1);
+    settings.volume = clampNum(Store.get('volume', 1), 0, 1, 1);
+  }
+
+  function applyTheme(theme, persist) {
+    const safeTheme = ['sombre', 'clair', 'contraste'].indexOf(theme) !== -1 ? theme : 'sombre';
+    settings.theme = safeTheme;
+    document.documentElement.setAttribute('data-theme', safeTheme);
+
+    $$('[data-theme-btn]').forEach(function (btn) {
+      btn.setAttribute('aria-pressed', String(btn.getAttribute('data-theme-btn') === safeTheme));
     });
 
-    if (niveau === "tout") {
-      Object.keys(blocs).forEach(function (k) {
-        if (blocs[k]) blocs[k].hidden = false;
+    if (persist) Store.set('theme', safeTheme);
+  }
+
+  function applyFontSize(px, persist) {
+    const safePx = clampNum(px, 16, 30, 18);
+    settings.fontSize = safePx;
+    document.documentElement.style.fontSize = safePx + 'px';
+
+    const range = document.getElementById('fontSize');
+    if (range && Number(range.value) !== safePx) range.value = String(safePx);
+
+    const output = document.getElementById('fontSizeOut');
+    if (output) output.textContent = safePx + ' px';
+
+    if (persist) Store.set('fontSize', safePx);
+  }
+
+  function bindRange(id, key, formatter) {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    const output = document.getElementById(id + 'Out');
+
+    function show() {
+      if (!output) return;
+      const value = Number(el.value);
+      output.textContent = formatter ? formatter(value) : String(value);
+    }
+
+    show();
+
+    el.addEventListener('input', function () {
+      const value = Number(el.value);
+      settings[key] = value;
+      const partial = {};
+      partial[key] = value;
+      Speech.setPrefs(partial);
+      show();
+    });
+
+    el.addEventListener('change', function () {
+      Store.set(key, Number(el.value));
+    });
+  }
+
+  function bindToggle(id, key, after) {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    el.addEventListener('change', function () {
+      settings[key] = el.checked;
+      Store.set(key, el.checked);
+      if (typeof after === 'function') after(el.checked);
+
+      const label = el.closest('.check');
+      const text = label ? textOfLabel(label) : key;
+      announce((el.checked ? 'Activé : ' : 'Désactivé : ') + text);
+    });
+  }
+
+  function textOfLabel(container) {
+    const clone = container.cloneNode(true);
+    Array.from(clone.querySelectorAll('input, output')).forEach(function (n) { n.remove(); });
+    return (clone.textContent || '').replace(/\s+/g, ' ').trim();
+  }
+
+  function syncSettingsUI() {
+    applyTheme(settings.theme, false);
+    applyFontSize(settings.fontSize, false);
+
+    const voiceEnabled = document.getElementById('voiceEnabled');
+    if (voiceEnabled) voiceEnabled.checked = settings.voiceEnabled;
+
+    const focusAnnounce = document.getElementById('focusAnnounce');
+    if (focusAnnounce) focusAnnounce.checked = settings.focusAnnounce;
+
+    const rate = document.getElementById('rate');
+    if (rate) rate.value = String(settings.rate);
+    const rateOut = document.getElementById('rateOut');
+    if (rateOut) rateOut.textContent = settings.rate.toFixed(1);
+
+    const pitch = document.getElementById('pitch');
+    if (pitch) pitch.value = String(settings.pitch);
+    const pitchOut = document.getElementById('pitchOut');
+    if (pitchOut) pitchOut.textContent = settings.pitch.toFixed(1);
+
+    const volume = document.getElementById('volume');
+    if (volume) volume.value = String(settings.volume);
+    const volumeOut = document.getElementById('volumeOut');
+    if (volumeOut) volumeOut.textContent = Math.round(settings.volume * 100) + ' %';
+  }
+
+  function bindSettingsControls() {
+    $$('[data-theme-btn]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const theme = btn.getAttribute('data-theme-btn');
+        applyTheme(theme, true);
+        announce('Thème : ' + THEME_NAMES[theme] + '.');
       });
-    } else {
-      Object.keys(blocs).forEach(function (k) {
-        if (!blocs[k]) return;
-        blocs[k].hidden = (k !== niveau);
+    });
+
+    const fontRange = document.getElementById('fontSize');
+    if (fontRange) {
+      fontRange.addEventListener('input', function () {
+        applyFontSize(Number(fontRange.value), false);
+      });
+      fontRange.addEventListener('change', function () {
+        const value = clampNum(fontRange.value, 16, 30, 18);
+        applyFontSize(value, true);
+        announce('Taille du texte : ' + value + ' pixels.', { speak: false });
       });
     }
 
-    replierFiches();
+    bindToggle('voiceEnabled', 'voiceEnabled', function (checked) {
+      Speech.setPrefs({ enabled: checked });
+    });
 
-    var cible = niveau === "tout" ? $("#contenu") : blocs[niveau];
-    if (cible && typeof cible.scrollIntoView === "function") {
-      try { cible.scrollIntoView({ behavior: "smooth", block: "start" }); } catch (e) {}
+    bindToggle('focusAnnounce', 'focusAnnounce', function (checked) {
+      Speech.setPrefs({ focus: checked });
+    });
+
+    bindRange('rate', 'rate', function (v) { return v.toFixed(1); });
+    bindRange('pitch', 'pitch', function (v) { return v.toFixed(1); });
+    bindRange('volume', 'volume', function (v) { return Math.round(v * 100) + ' %'; });
+
+    const voiceSelect = document.getElementById('voiceSelect');
+    if (voiceSelect) {
+      voiceSelect.addEventListener('change', function () {
+        settings.voiceURI = voiceSelect.value;
+        Store.set('voiceURI', settings.voiceURI);
+        Speech.setPrefs({ voiceURI: settings.voiceURI });
+        announce('Voix sélectionnée.', { speak: false });
+      });
+    }
+
+    const testVoice = document.getElementById('testVoice');
+    if (testVoice) {
+      testVoice.addEventListener('click', function () {
+        Speech.speak('Bonjour. Ceci est un test de la voix du guide SmartVision3.', { force: true });
+      });
+    }
+
+    const stopVoice = document.getElementById('stopVoice');
+    if (stopVoice) {
+      stopVoice.addEventListener('click', function () {
+        Speech.stop();
+        announce('Lecture vocale arrêtée.', { speak: false });
+      });
+    }
+
+    const stopVoiceTop = document.getElementById('stopVoiceTop');
+    if (stopVoiceTop) {
+      stopVoiceTop.addEventListener('click', function () {
+        Speech.stop();
+        announce('Lecture vocale arrêtée.', { speak: false });
+      });
+    }
+
+    const quickContrast = document.getElementById('quickContrast');
+    if (quickContrast) {
+      quickContrast.addEventListener('click', function () {
+        const order = ['sombre', 'clair', 'contraste'];
+        const next = order[(order.indexOf(settings.theme) + 1) % order.length];
+        applyTheme(next, true);
+        announce('Thème : ' + THEME_NAMES[next] + '.');
+      });
+    }
+
+    const quickFont = document.getElementById('quickFont');
+    if (quickFont) {
+      quickFont.addEventListener('click', function () {
+        const sizes = [18, 22, 26, 30];
+        const current = sizes.indexOf(settings.fontSize);
+        const next = sizes[(current + 1) % sizes.length];
+        applyFontSize(next, true);
+        announce('Taille du texte : ' + next + ' pixels.', { speak: false });
+      });
+    }
+
+    const readIntro = document.getElementById('readIntro');
+    if (readIntro) {
+      readIntro.addEventListener('click', function () {
+        const intro = document.getElementById('intro');
+        const text = intro ? readableText(intro) : '';
+        if (text) Speech.speak(text);
+      });
     }
   }
 
-  onglets.forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      var niveau = btn.getAttribute("data-niveau");
-      if (niveau) afficherNiveau(niveau);
-    });
-  });
+  /* ============================================================
+     Lecture d’un bloc de contenu
+     ============================================================ */
+  function readableText(container) {
+    if (!container) return '';
+    const parts = [];
+    const nodes = container.querySelectorAll('h2, h3, p, li');
 
-  if (onglets.length) {
-    var actif = onglets.find(function (b) { return b.getAttribute("aria-pressed") === "true"; });
-    afficherNiveau(actif ? actif.getAttribute("data-niveau") : "basique");
+    nodes.forEach(function (node) {
+      if (node.closest('.card-actions') || node.closest('[data-no-read]')) return;
+      if (node.querySelector('h2, h3, p, li')) return;
+
+      const text = (node.textContent || '').replace(/\s+/g, ' ').trim();
+      if (text) parts.push(text);
+    });
+
+    return parts.join(' ');
   }
 
-  /* ==========================================================================
-     SECTION 7 — RECHERCHE
-     ========================================================================== */
-  var champRecherche = $("#q");
-  var resultatRecherche = $("#resultat-recherche");
-  var btnEffacer = $("#btn-effacer-recherche");
-  var dernierMessage = "";
+  /* ============================================================
+     Progression
+     ============================================================ */
+  let readSet = new Set();
 
-  function filtrerCartes() {
-    if (!champRecherche) return;
-    var terme = (champRecherche.value || "").toLowerCase().trim();
-    var cartes = $$("article.carte");
-    if (cartes.length === 0) return;
+  function syncReadButtons() {
+    $$('.mark-read').forEach(function (btn) {
+      const moduleId = btn.getAttribute('data-module');
+      if (!moduleId) return;
 
-    if (!terme) {
-      cartes.forEach(function (c) { c.hidden = false; });
-      if (resultatRecherche) resultatRecherche.textContent = "";
-      dernierMessage = "";
+      const isRead = readSet.has(moduleId);
+      btn.setAttribute('aria-pressed', String(isRead));
+      btn.textContent = isRead ? 'Lu — cliquer pour retirer' : 'Marquer comme lu';
+
+      const card = btn.closest('.card');
+      if (card) card.classList.toggle('is-read', isRead);
+    });
+  }
+
+  function updateProgress() {
+    const cards = $$('.card[data-module]');
+    const ids = cards.map(function (card) { return card.getAttribute('data-module'); }).filter(Boolean);
+    const readCount = ids.filter(function (id) { return readSet.has(id); }).length;
+    const percent = ids.length ? Math.round((readCount / ids.length) * 100) : 0;
+
+    const bar = document.getElementById('progressBar');
+    if (bar) {
+      bar.setAttribute('aria-valuenow', String(percent));
+      bar.setAttribute(
+        'aria-valuetext',
+        readCount + ' fiche' + (readCount > 1 ? 's' : '') + ' lue' + (readCount > 1 ? 's' : '') +
+        ' sur ' + ids.length + ', ' + percent + ' pour cent'
+      );
+    }
+
+    const fill = document.getElementById('progressFill');
+    if (fill) fill.style.width = percent + '%';
+
+    const text = document.getElementById('progressText');
+    if (text) {
+      text.textContent =
+        readCount + ' fiche' + (readCount > 1 ? 's' : '') + ' lue' + (readCount > 1 ? 's' : '') +
+        ' sur ' + ids.length + ' (' + percent + ' %).';
+    }
+  }
+
+  function saveProgress() {
+    Store.set('progress', Array.from(readSet));
+  }
+
+  function initProgress() {
+    const stored = Store.get('progress', []);
+    readSet = new Set(
+      Array.isArray(stored)
+        ? stored.filter(function (item) { return typeof item === 'string'; })
+        : []
+    );
+
+    syncReadButtons();
+    updateProgress();
+
+    const resetButton = document.getElementById('resetProgress');
+    if (!resetButton) return;
+
+    let armed = false;
+    let timer = 0;
+
+    resetButton.addEventListener('click', function () {
+      if (!armed) {
+        armed = true;
+        resetButton.textContent = 'Confirmer la réinitialisation';
+        announce('Appuyez à nouveau pour confirmer la réinitialisation de la progression.');
+        window.clearTimeout(timer);
+        timer = window.setTimeout(function () {
+          armed = false;
+          resetButton.textContent = 'Réinitialiser la progression';
+        }, 6000);
+        return;
+      }
+
+      readSet.clear();
+      saveProgress();
+      syncReadButtons();
+      updateProgress();
+
+      armed = false;
+      window.clearTimeout(timer);
+      resetButton.textContent = 'Réinitialiser la progression';
+      announce('Progression réinitialisée.');
+    });
+  }
+
+  /* ============================================================
+     Filtres, recherche et fiches
+     ============================================================ */
+  const filterState = {
+    level: 'all',
+    query: ''
+  };
+
+  function applyFilters() {
+    const cards = $$('.card');
+    const query = norm(filterState.query);
+    let visible = 0;
+
+    cards.forEach(function (card) {
+      const levelOk =
+        filterState.level === 'all' ||
+        card.getAttribute('data-level') === filterState.level;
+
+      const haystack = norm(
+        (card.getAttribute('data-tags') || '') + ' ' + (card.textContent || '')
+      );
+      const queryOk = !query || haystack.indexOf(query) !== -1;
+      const show = levelOk && queryOk;
+
+      card.hidden = !show;
+      if (show) visible += 1;
+    });
+
+    const count = document.getElementById('resultCount');
+    if (count) {
+      count.textContent = visible + (visible === 1 ? ' fiche affichée.' : ' fiches affichées.');
+    }
+
+    const empty = document.getElementById('emptyState');
+    if (empty) empty.hidden = visible !== 0;
+  }
+
+  function initFiltersAndModules() {
+    const tabs = $$('.tab[data-level]');
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        filterState.level = tab.getAttribute('data-level') || 'all';
+
+        tabs.forEach(function (other) {
+          other.setAttribute('aria-pressed', String(other === tab));
+        });
+
+        applyFilters();
+        renderQuiz(filterState.level);
+
+        const count = document.getElementById('resultCount');
+        announce(
+          'Filtre : ' + (tab.textContent || '').trim() + '. ' +
+          (count ? count.textContent : '')
+        );
+      });
+    });
+
+    const search = document.getElementById('search');
+    if (search) {
+      let searchTimer = 0;
+      search.addEventListener('input', function () {
+        window.clearTimeout(searchTimer);
+        searchTimer = window.setTimeout(function () {
+          filterState.query = search.value;
+          applyFilters();
+        }, 200);
+      });
+    }
+
+    const modules = document.getElementById('modules');
+    if (modules) {
+      modules.addEventListener('click', function (event) {
+        const target = event.target;
+        if (!target || target.nodeType !== 1) return;
+
+        const mark = target.closest('.mark-read');
+        if (mark && modules.contains(mark)) {
+          const moduleId = mark.getAttribute('data-module');
+          if (!moduleId) return;
+
+          if (readSet.has(moduleId)) {
+            readSet.delete(moduleId);
+            announce('Fiche marquée comme non lue.');
+          } else {
+            readSet.add(moduleId);
+            announce('Fiche marquée comme lue.');
+          }
+
+          saveProgress();
+          syncReadButtons();
+          updateProgress();
+          return;
+        }
+
+        const speakButton = target.closest('.speak-card');
+        if (speakButton && modules.contains(speakButton)) {
+          const card = speakButton.closest('.card');
+          const text = readableText(card);
+          if (text) Speech.speak(text);
+        }
+      });
+    }
+
+    applyFilters();
+  }
+
+  /* ============================================================
+     Quiz
+     ============================================================ */
+  const QUIZ = [
+    {
+      level: 1,
+      q: 'Comment allumer le SmartVision3 ?',
+      options: [
+        'Un appui long sur le bouton Marche/Arrêt, puis relâcher dès que l’appareil vibre',
+        'Un appui court sur la touche OK',
+        'Un appui long sur la touche Dièse'
+      ],
+      a: 0,
+      why: 'Le manuel indique un appui maintenu sur Marche/Arrêt, puis de relâcher à la vibration.'
+    },
+    {
+      level: 1,
+      q: 'Quelle touche valide l’élément sélectionné à l’écran ?',
+      options: [
+        'La touche Accueil',
+        'La touche OK',
+        'La touche Effacer'
+      ],
+      a: 1,
+      why: 'La touche OK confirme la sélection. Un appui long ouvre le menu contextuel.'
+    },
+    {
+      level: 1,
+      q: 'Au clavier, comment passer à l’élément suivant ?',
+      options: [
+        'Un appui long sur Bas',
+        'Un appui court sur Haut',
+        'Un appui court sur Bas'
+      ],
+      a: 2,
+      why: 'Un appui court sur Bas sélectionne l’élément suivant ; un appui long sélectionne le dernier élément.'
+    },
+    {
+      level: 1,
+      q: 'Comment décrocher un appel entrant ?',
+      options: [
+        'La touche Effacer',
+        'La touche Menu',
+        'La touche OK'
+      ],
+      a: 2,
+      why: 'OK décroche. Effacer rejette l’appel ou raccroche. Avec l’option KAPSYS, une touche numérique peut aussi décrocher.'
+    },
+    {
+      level: 2,
+      q: 'Quel raccourci annonce l’état du téléphone : heure, batterie et réseau ?',
+      options: [
+        'Dièse 6',
+        'Étoile 1',
+        'Dièse 1'
+      ],
+      a: 2,
+      why: 'Dièse 1 annonce l’état du téléphone. Dièse 6 active MagniText.'
+    },
+    {
+      level: 2,
+      q: 'Quel raccourci active ou désactive MagniText ?',
+      options: [
+        'Dièse 7',
+        'Dièse 6',
+        'Étoile 6'
+      ],
+      a: 1,
+      why: 'Dièse 6 bascule MagniText. Dièse 7 bascule l’écran tactile.'
+    },
+    {
+      level: 2,
+      q: 'Comment ouvrir le volet des notifications ?',
+      options: [
+        'Un appui long sur la touche Retour',
+        'Un appui long sur la touche Accueil',
+        'Un appui court sur la touche Menu'
+      ],
+      a: 0,
+      why: 'Un appui long sur Retour ouvre le volet des notifications ; un appui long sur Accueil ouvre les applications récentes.'
+    },
+    {
+      level: 2,
+      q: 'Quel raccourci bascule sur le clavier virtuel Android ?',
+      options: [
+        'Étoile 7',
+        'Dièse 8',
+        'Étoile 8'
+      ],
+      a: 2,
+      why: 'Étoile 8 active le clavier Android. Étoile 7 active le clavier Kapsys.'
+    },
+    {
+      level: 3,
+      q: 'Quel code réinitialise les paramètres TalkBack en cas de déréglage ?',
+      options: [
+        '*#333#',
+        '*#111#',
+        '*#06#'
+      ],
+      a: 1,
+      why: '*#111# réinitialise TalkBack. *#333# réinitialise le téléphone en configuration d’usine.'
+    },
+    {
+      level: 3,
+      q: 'Pendant une navigation Kapten, quelle touche annonce la distance restante ?',
+      options: [
+        'Touche 9',
+        'Touche 4',
+        'Touche 6'
+      ],
+      a: 2,
+      why: 'La touche 6 annonce la distance restante. La touche 4 donne la vitesse actuelle et la touche 9 la réception satellite.'
+    },
+    {
+      level: 3,
+      q: 'Dans le Livre audio, quelle touche met la lecture en pause ou la reprend ?',
+      options: [
+        'Touche 1',
+        'Touche 0',
+        'Touche 2'
+      ],
+      a: 1,
+      why: 'La touche 0 sert de lecture/pause. La touche 1 va à la section précédente et la touche 2 à la suivante.'
+    },
+    {
+      level: 3,
+      q: 'Dans l’application Loupe, quelle touche fige l’écran ?',
+      options: [
+        'La touche Dièse',
+        'La touche 0',
+        'La touche Étoile'
+      ],
+      a: 2,
+      why: 'Étoile fige l’écran. Dièse change le contraste et 0 prend une photo.'
+    }
+  ];
+
+  let quizBest = {};
+
+  function loadQuizBest() {
+    const stored = Store.get('quizBest', {});
+    quizBest = stored && typeof stored === 'object' && !Array.isArray(stored) ? stored : {};
+  }
+
+  function updateQuizBest(key) {
+    const el = document.getElementById('quizBest');
+    if (!el) return;
+    const best = quizBest[key];
+    el.textContent = typeof best === 'number'
+      ? 'Meilleur score pour cette sélection : ' + best + ' %.'
+      : 'Aucun score enregistré pour cette sélection.';
+  }
+
+  function renderQuiz(level) {
+    const form = document.getElementById('quizForm');
+    if (!form) return;
+
+    const key = level || 'all';
+
+    if (form.getAttribute('data-level') === key && form.childElementCount > 0) {
+      updateQuizBest(key);
       return;
     }
 
-    var trouvees = 0;
-    cartes.forEach(function (carte) {
-      var txt = (carte.innerText || carte.textContent || "").toLowerCase();
-      if (txt.indexOf(terme) !== -1) {
-        carte.hidden = false;
-        trouvees++;
-        var d = carte.querySelector("details");
-        if (d) d.open = true;
-      } else {
-        carte.hidden = true;
-      }
+    while (form.firstChild) form.removeChild(form.firstChild);
+
+    const items = QUIZ.filter(function (item) {
+      return key === 'all' || String(item.level) === String(key);
     });
 
-    var message = trouvees === 0
-      ? "Aucune fiche ne correspond à votre recherche."
-      : trouvees + " fiche" + (trouvees > 1 ? "s" : "") + " trouvée" + (trouvees > 1 ? "s" : "") + ".";
+    updateQuizBest(key);
 
-    if (resultatRecherche) resultatRecherche.textContent = message;
-
-    if (message !== dernierMessage && voixActivee) {
-      dernierMessage = message;
-      parler(message);
+    const result = document.getElementById('quizResult');
+    if (result) {
+      result.textContent = '';
+      result.classList.remove('ok', 'ko');
     }
-  }
 
-  if (champRecherche) champRecherche.addEventListener("input", filtrerCartes);
-  if (btnEffacer) {
-    btnEffacer.addEventListener("click", function () {
-      if (champRecherche) champRecherche.value = "";
-      filtrerCartes();
-      if (champRecherche) champRecherche.focus();
-    });
-  }
-
-  /* ==========================================================================
-     SECTION 8 — PROGRESSION (persistante)
-     ========================================================================== */
-  var texteProgres = $("#texte-progres");
-  var barreProgres = $("#barre-progres");
-  var cases = $$('input[type="checkbox"][data-cle]');
-
-  function cleStockage(cle) { return "sv3-progres-" + cle; }
-
-  cases.forEach(function (c) {
-    try {
-      if (localStorage.getItem(cleStockage(c.getAttribute("data-cle"))) === "1") c.checked = true;
-    } catch (e) {}
-  });
-
-  function mettreAJourProgression() {
-    var total = cases.length;
-    var cochees = cases.filter(function (c) { return c.checked; }).length;
-    var pourcent = total === 0 ? 0 : Math.round((cochees / total) * 100);
-
-    if (barreProgres) {
-      barreProgres.value = pourcent;
-      barreProgres.textContent = pourcent + " %";
+    if (!items.length) {
+      const message = document.createElement('p');
+      message.textContent = 'Aucune question pour cette sélection.';
+      form.appendChild(message);
+      form.setAttribute('data-level', key);
+      return;
     }
-    if (texteProgres) {
-      texteProgres.textContent =
-        "Progression : " + cochees + " étape" + (cochees > 1 ? "s" : "") +
-        " terminée" + (cochees > 1 ? "s" : "") + " sur " + total +
-        " (" + pourcent + " %).";
-    }
-  }
 
-  cases.forEach(function (c) {
-    c.addEventListener("change", function () {
-      try {
-        localStorage.setItem(cleStockage(c.getAttribute("data-cle")), c.checked ? "1" : "0");
-      } catch (e) {}
-      mettreAJourProgression();
-    });
-  });
-  mettreAJourProgression();
+    items.forEach(function (item, index) {
+      const fieldset = document.createElement('fieldset');
+      fieldset.className = 'question';
+      fieldset.setAttribute('data-qindex', String(index));
 
-  /* ==========================================================================
-     SECTION 9 — QUIZ (génération dynamique)
-     ========================================================================== */
-  var QUIZ = {
-    basique: [
-      { q: "Quelle touche permet de valider l'élément sélectionné à l'écran ?",
-        reponses: ["La touche OK", "La touche Accueil", "La touche Effacer"], bonne: 0 },
-      { q: "Que fait un appui long sur la touche Accueil ?",
-        reponses: ["Ouvrir les applications récentes", "Revenir à l'écran d'accueil", "Ouvrir le volet des notifications"], bonne: 0 },
-      { q: "Quel geste permet d'ouvrir le volet des notifications avec Talkback ?",
-        reponses: ["Balayer à deux doigts vers le bas depuis le haut de l'écran", "Un appui long sur Retour", "Un double tapotement"], bonne: 0 },
-      { q: "Combien de profils audio le SmartVision3 propose-t-il ?",
-        reponses: ["5 : multimédia, appels, sonneries, alarmes, synthèse vocale", "2 : appels et multimédia", "3 : sonnerie, alarme, voix"], bonne: 0 }
-    ],
-    maitrisee: [
-      { q: "Quel raccourci ouvre les paramètres rapides ?",
-        reponses: ["Dièse + 3", "Étoile + 1", "Dièse + 0"], bonne: 0 },
-      { q: "À quoi sert la fonction SOS ?",
-        reponses: ["À envoyer des appels et messages d'urgence géolocalisés", "À éteindre le téléphone à distance", "À réinitialiser les paramètres"], bonne: 0 },
-      { q: "Comment désactiver complètement l'écran tactile ?",
-        reponses: ["Dans Accessibilité KAPSYS › Désactiver l'écran tactile", "En appuyant sur Dièse + 7", "En maintenant OK + Effacer"], bonne: 0 },
-      { q: "Combien de jours les contacts supprimés restent-ils dans la corbeille ?",
-        reponses: ["30 jours", "7 jours", "Ils sont supprimés immédiatement"], bonne: 0 }
-    ],
-    avancee: [
-      { q: "Quel mode de Kapten donne la distance et la direction à vol d'oiseau ?",
-        reponses: ["Le guidage cardinal", "La navigation piétonne", "La lecture de carte"], bonne: 0 },
-      { q: "Que signifie un cap « 3 heures » en guidage cardinal ?",
-        reponses: ["Dirigez-vous sur votre droite", "Allez tout droit", "Faites demi-tour"], bonne: 0 },
-      { q: "Quel code compose-t-on pour réinitialiser les paramètres Talkback ?",
-        reponses: ["*#111#", "*#333#", "*#123#"], bonne: 0 },
-      { q: "Sur quel code compose-t-on pour réinitialiser complètement le téléphone ?",
-        reponses: ["*#333#", "*#111#", "*#000#"], bonne: 0 }
-    ]
-  };
-
-  function construireQuiz(idConteneur, cleNiveau) {
-    var conteneur = $("#" + idConteneur);
-    if (!conteneur) return;
-    var liste = QUIZ[cleNiveau];
-    if (!liste || !liste.length) return;
-
-    conteneur.innerHTML = "";
-
-    liste.forEach(function (item, index) {
-      var fieldset = document.createElement("fieldset");
-      fieldset.className = "question";
-
-      var legend = document.createElement("legend");
-      legend.textContent = "Question " + (index + 1) + " — " + item.q;
+      const legend = document.createElement('legend');
+      legend.textContent =
+        'Question ' + (index + 1) + ' sur ' + items.length +
+        ' — niveau ' + item.level + ' : ' + item.q;
       fieldset.appendChild(legend);
 
-      item.reponses.forEach(function (rep, i) {
-        var label = document.createElement("label");
-        label.className = "reponse";
+      item.options.forEach(function (optionText, optionIndex) {
+        const id = 'quiz-' + key + '-' + index + '-' + optionIndex;
 
-        var input = document.createElement("input");
-        input.type = "radio";
-        input.name = "quiz-" + cleNiveau + "-" + index;
-        input.value = String(i);
-        input.id = "q-" + cleNiveau + "-" + index + "-" + i;
+        const label = document.createElement('label');
+        label.className = 'option';
+        label.setAttribute('for', id);
+
+        const input = document.createElement('input');
+        input.type = 'radio';
+        input.name = 'quiz-' + key + '-q' + index;
+        input.id = id;
+        input.value = String(optionIndex);
+
+        const span = document.createElement('span');
+        span.textContent = optionText;
 
         label.appendChild(input);
-        label.appendChild(document.createTextNode(" " + rep));
+        label.appendChild(span);
         fieldset.appendChild(label);
       });
 
-      var btn = document.createElement("button");
-      btn.type = "button";
-      btn.textContent = "Vérifier";
-      fieldset.appendChild(btn);
+      const feedback = document.createElement('p');
+      feedback.className = 'feedback';
+      feedback.id = 'quiz-fb-' + key + '-' + index;
+      fieldset.appendChild(feedback);
 
-      var retour = document.createElement("p");
-      retour.className = "retour";
-      retour.setAttribute("aria-live", "polite");
-      fieldset.appendChild(retour);
+      form.appendChild(fieldset);
+    });
 
-      btn.addEventListener("click", function () {
-        var selection = fieldset.querySelector('input[type="radio"]:checked');
-        var message, classe;
+    const actions = document.createElement('div');
+    actions.className = 'quiz-actions';
 
-        if (!selection) {
-          message = "Veuillez sélectionner une réponse.";
-          classe = "retour faux";
-        } else {
-          var choix = parseInt(selection.value, 10);
-          if (choix === item.bonne) {
-            message = "✅ Bonne réponse !";
-            classe = "retour bon";
-          } else {
-            message = "❌ Réponse incorrecte. La bonne réponse était : « " + item.reponses[item.bonne] + " ».";
-            classe = "retour faux";
-          }
-        }
+    const submit = document.createElement('button');
+    submit.type = 'submit';
+    submit.className = 'btn primary';
+    submit.textContent = 'Valider mes réponses';
+    actions.appendChild(submit);
 
-        retour.textContent = message;
-        retour.className = classe;
+    form.appendChild(actions);
+    form.setAttribute('data-level', key);
+  }
 
-        if (voixActivee) parler(message);
+  function initQuiz() {
+    loadQuizBest();
+    renderQuiz(filterState.level);
+
+    const form = document.getElementById('quizForm');
+    if (!form) return;
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      const key = form.getAttribute('data-level') || 'all';
+      const items = QUIZ.filter(function (item) {
+        return key === 'all' || String(item.level) === String(key);
       });
 
-      conteneur.appendChild(fieldset);
-    });
-  }
+      if (!items.length) return;
 
-  construireQuiz("quiz-basique",   "basique");
-  construireQuiz("quiz-maitrisee", "maitrisee");
-  construireQuiz("quiz-avancee",   "avancee");
+      let correct = 0;
+      let answered = 0;
 
-  /* ==========================================================================
-     SECTION 10 — THÈME (persistant)
-     ========================================================================== */
-  var choixTheme = $("#choix-theme");
+      items.forEach(function (item, index) {
+        const selected = form.querySelector(
+          'input[name="quiz-' + key + '-q' + index + '"]:checked'
+        );
+        if (selected) answered += 1;
 
-  function appliquerTheme(val) {
-    document.body.classList.remove("clair", "contraste");
-    if (val === "clair")     document.body.classList.add("clair");
-    if (val === "contraste") document.body.classList.add("contraste");
-  }
+        const good = !!selected && Number(selected.value) === item.a;
+        if (good) correct += 1;
 
-  if (choixTheme) {
-    try {
-      var sauvegarde = localStorage.getItem("sv3-theme");
-      if (sauvegarde && choixTheme.querySelector('option[value="' + sauvegarde + '"]')) {
-        choixTheme.value = sauvegarde;
+        const fieldset = form.querySelector('fieldset[data-qindex="' + index + '"]');
+        if (fieldset) {
+          fieldset.classList.toggle('is-correct', good);
+          fieldset.classList.toggle('is-wrong', !good);
+        }
+
+        const feedback = document.getElementById('quiz-fb-' + key + '-' + index);
+        if (feedback) {
+          feedback.className = 'feedback ' + (good ? 'ok' : 'ko');
+          let text = selected
+            ? (good ? 'Correct. ' : 'Incorrect. ')
+            : 'Sans réponse. ';
+          text += item.why;
+          if (selected && !good) {
+            text += ' La bonne réponse est : ' + item.options[item.a] + '.';
+          }
+          feedback.textContent = text;
+        }
+      });
+
+      const percent = Math.round((correct / items.length) * 100);
+
+      const result = document.getElementById('quizResult');
+      if (result) {
+        result.textContent =
+          'Score : ' + correct + ' sur ' + items.length + ' (' + percent + ' %). ' +
+          'Questions répondues : ' + answered + ' sur ' + items.length + '. ' +
+          'Le détail figure sous chaque question.';
+        result.classList.remove('ok', 'ko');
+        result.classList.add(percent >= 70 ? 'ok' : 'ko');
       }
-    } catch (e) {}
-    appliquerTheme(choixTheme.value);
-    choixTheme.addEventListener("change", function () {
-      appliquerTheme(choixTheme.value);
-      try { localStorage.setItem("sv3-theme", choixTheme.value); } catch (e) {}
+
+      if (!(typeof quizBest[key] === 'number' && quizBest[key] >= percent)) {
+        quizBest[key] = percent;
+        Store.set('quizBest', quizBest);
+        updateQuizBest(key);
+      }
+
+      announce(
+        'Quiz terminé. Score : ' + correct + ' sur ' + items.length +
+        ', soit ' + percent + ' pour cent.'
+      );
+
+      if (result && typeof result.focus === 'function') {
+        try { result.focus(); } catch (e) { /* ignoré */ }
+      }
     });
   }
 
-  /* ==========================================================================
-     SECTION 11 — TAILLE DE TEXTE (persistante)
-     ========================================================================== */
-  var btnPlus  = $("#btn-plus");
-  var btnMoins = $("#btn-moins");
-  var taille = 1.1;
+  /* ============================================================
+     Raccourcis clavier de la page
+     ============================================================ */
+  function initKeyboard() {
+    document.addEventListener('keydown', function (event) {
+      if (event.defaultPrevented) return;
 
-  try {
-    var sauvegardeTaille = parseFloat(localStorage.getItem("sv3-taille"));
-    if (!isNaN(sauvegardeTaille) && sauvegardeTaille >= 0.8 && sauvegardeTaille <= 2) {
-      taille = sauvegardeTaille;
+      const target = event.target;
+      const tag = target && target.tagName ? target.tagName : '';
+      const typing =
+        /INPUT|TEXTAREA|SELECT/.test(tag) ||
+        (target && target.isContentEditable);
+
+      if (event.key === 'Escape') {
+        Speech.stop();
+        announce('Lecture vocale arrêtée.', { speak: false });
+        return;
+      }
+
+      if (typing) return;
+      if (event.altKey || event.ctrlKey || event.metaKey) return;
+
+      if (event.key === '?' || (event.key === '/' && event.shiftKey)) {
+        event.preventDefault();
+
+        const details = document.getElementById('helpPanel');
+        if (details) details.open = true;
+
+        const title = document.getElementById('shortcutsTitle');
+        if (title) {
+          try { title.focus(); } catch (e) { /* ignoré */ }
+        }
+
+        announce('Aide sur les raccourcis de la page affichée.');
+      }
+    });
+  }
+
+  /* ============================================================
+     Initialisation
+     ============================================================ */
+  function initSettings() {
+    loadSettings();
+
+    applyTheme(settings.theme, false);
+    applyFontSize(settings.fontSize, false);
+
+    Speech.setPrefs({
+      enabled: settings.voiceEnabled,
+      focus: settings.focusAnnounce,
+      voiceURI: settings.voiceURI,
+      rate: settings.rate,
+      pitch: settings.pitch,
+      volume: settings.volume
+    });
+
+    syncSettingsUI();
+    bindSettingsControls();
+  }
+
+  function init() {
+    if (!Store.available) {
+      const warning = document.getElementById('storageWarning');
+      if (warning) warning.hidden = false;
     }
-  } catch (e) {}
 
-  function appliquerTaille() {
-    taille = Math.min(2, Math.max(0.8, Math.round(taille * 10) / 10));
-    document.documentElement.style.setProperty("--taille", taille + "rem");
-    try { localStorage.setItem("sv3-taille", String(taille)); } catch (e) {}
+    try {
+      initSettings();
+    } catch (e) {
+      reportError('Les réglages n’ont pas pu être initialisés.', e, true);
+    }
+
+    try {
+      Speech.startVoicePolling();
+    } catch (e) {
+      reportError('Le chargement des voix a échoué.', e, false);
+    }
+
+    if (!Speech.isSupported()) {
+      const warning = document.getElementById('speechWarning');
+      if (warning) warning.hidden = false;
+
+      const test = document.getElementById('testVoice');
+      if (test) {
+        test.disabled = true;
+        test.textContent = 'Synthèse vocale non disponible';
+      }
+
+      const toggle = document.getElementById('voiceEnabled');
+      if (toggle) toggle.checked = false;
+    }
+
+    try {
+      initProgress();
+    } catch (e) {
+      reportError('La progression n’a pas pu être chargée.', e, false);
+    }
+
+    try {
+      initFiltersAndModules();
+    } catch (e) {
+      reportError('Les filtres n’ont pas pu être initialisés.', e, false);
+    }
+
+    try {
+      initQuiz();
+    } catch (e) {
+      reportError('Le quiz n’a pas pu être initialisé.', e, false);
+    }
+
+    try {
+      initKeyboard();
+    } catch (e) {
+      reportError('Les raccourcis clavier n’ont pas pu être initialisés.', e, false);
+    }
+
+    try {
+      document.addEventListener('focusin', function (event) {
+        try {
+          Speech.scheduleFocus(event.target);
+        } catch (e) {
+          console.warn('Annonce au focus impossible', e);
+        }
+      }, true);
+
+      document.addEventListener('focusout', function () {
+        Speech.clearFocusTimer();
+      }, true);
+    } catch (e) {
+      reportError('Les annonces au focus ne sont pas disponibles.', e, false);
+    }
+
+    try {
+      applyFilters();
+    } catch (e) {
+      console.warn('Application initiale des filtres impossible', e);
+    }
   }
-  appliquerTaille();
 
-  if (btnPlus)  btnPlus.addEventListener("click", function () { taille += 0.1; appliquerTaille(); });
-  if (btnMoins) btnMoins.addEventListener("click", function () { taille -= 0.1; appliquerTaille(); });
-
-  /* ==========================================================================
-     SECTION 12 — LIRE L'INTRODUCTION
-     ========================================================================== */
-  var btnLirePage = $("#btn-lire-page");
-  if (btnLirePage) {
-    btnLirePage.addEventListener("click", function () {
-      var intro = $(".intro-niveau");
-      if (intro) parler(intro.innerText || intro.textContent || "");
-    });
-  }
-
-  /* ==========================================================================
-     SECTION 13 — LANCEMENT
-     ========================================================================== */
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", function () {
-      afficherBandeauDiagnostic();
-      log("script initialisé (DOMContentLoaded)");
-    });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
   } else {
-    afficherBandeauDiagnostic();
-    log("script initialisé (immédiat)");
+    init();
   }
-
 })();
 </script>
+</body>
+</html>
