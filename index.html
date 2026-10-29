@@ -1,54 +1,163 @@
 <script>
-(function(){
+/* ============================================================================
+   SmartVision3 — Guide interactif
+   Script complet, autonome, avec auto-diagnostic visible.
+   Version : 2026-10-29
+   ============================================================================ */
+(function () {
   "use strict";
 
-  /* ============================================================
-     1. OUTILS DE BASE
-     ============================================================ */
-  const $  = (sel, ctx = document) => ctx.querySelector(sel);
-  const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
+  /* ==========================================================================
+     SECTION 0 — AUTO-DIAGNOSTIC VISIBLE
+     Affiche un bandeau en haut de page pour confirmer que le script tourne.
+     ========================================================================== */
+  function afficherBandeauDiagnostic() {
+    if (document.getElementById("sv3-diag")) return;
+    var bandeau = document.createElement("div");
+    bandeau.id = "sv3-diag";
+    bandeau.setAttribute("role", "status");
+    bandeau.setAttribute("aria-live", "polite");
+    bandeau.style.cssText = [
+      "position:fixed",
+      "top:0",
+      "left:0",
+      "right:0",
+      "z-index:9999",
+      "background:#0a7d32",
+      "color:#ffffff",
+      "font-family:system-ui,sans-serif",
+      "font-size:14px",
+      "font-weight:700",
+      "padding:10px 14px",
+      "text-align:center",
+      "box-shadow:0 2px 6px rgba(0,0,0,.4)"
+    ].join(";");
+    bandeau.textContent = "✅ Script SmartVision3 chargé — les interactions sont actives.";
+    document.body.appendChild(bandeau);
+    setTimeout(function () {
+      bandeau.style.transition = "opacity 1s";
+      bandeau.style.opacity = "0";
+      setTimeout(function () { bandeau.remove(); }, 1200);
+    }, 4000);
+  }
 
-  /* ============================================================
-     2. SYNTHÈSE VOCALE (voix au focus + lecture manuelle)
-     ============================================================ */
-  const synth = window.speechSynthesis;
-  let voixActivee = true;       // voix au focus
-  let derniereUtterance = null;
+  function afficherErreurDiagnostic(message) {
+    if (document.getElementById("sv3-diag")) return;
+    var bandeau = document.createElement("div");
+    bandeau.id = "sv3-diag";
+    bandeau.setAttribute("role", "alert");
+    bandeau.style.cssText = [
+      "position:fixed",
+      "top:0",
+      "left:0",
+      "right:0",
+      "z-index:9999",
+      "background:#a4160a",
+      "color:#ffffff",
+      "font-family:system-ui,sans-serif",
+      "font-size:14px",
+      "font-weight:700",
+      "padding:12px 14px",
+      "text-align:center",
+      "box-shadow:0 2px 6px rgba(0,0,0,.4)"
+    ].join(";");
+    bandeau.textContent = "❌ " + message;
+    document.body.appendChild(bandeau);
+  }
 
-  function parler(texte) {
+  /* ==========================================================================
+     SECTION 1 — HELPERS
+     ========================================================================== */
+  var $  = function (sel, ctx) { return (ctx || document).querySelector(sel); };
+  var $$ = function (sel, ctx) { return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); };
+  var log = function () {
+    try { console.log.apply(console, ["[SV3]"].concat(Array.prototype.slice.call(arguments))); }
+    catch (e) {}
+  };
+
+  /* ==========================================================================
+     SECTION 2 — SYNTHÈSE VOCALE
+     ========================================================================== */
+  var synth = window.speechSynthesis || null;
+  var voixFr = null;
+  var voixActivee = true;
+  var lastSpoken = "";
+  var lastSpokenAt = 0;
+  var focusTimer = null;
+
+  function chargerVoix() {
+    if (!synth) return;
+    var toutes = synth.getVoices();
+    if (!toutes || toutes.length === 0) return;
+    for (var i = 0; i < toutes.length; i++) {
+      var v = toutes[i];
+      if (v.lang && v.lang.toLowerCase().indexOf("fr") === 0) { voixFr = v; break; }
+    }
+    if (!voixFr) voixFr = toutes[0] || null;
+    log("voix utilisée :", voixFr ? voixFr.name : "aucune");
+  }
+
+  if (synth) {
+    chargerVoix();
+    if (typeof synth.onvoiceschanged !== "undefined") {
+      synth.onvoiceschanged = chargerVoix;
+    }
+  } else {
+    log("synthèse vocale indisponible sur ce navigateur");
+  }
+
+  function parler(texte, opts) {
     if (!synth || !texte) return;
-    synth.cancel();                       // coupe une éventuelle lecture en cours
-    const u = new SpeechSynthesisUtterance(texte.trim());
-    u.lang = "fr-FR";
-    u.rate = 1;
-    u.pitch = 1;
-    derniereUtterance = u;
-    synth.speak(u);
+    var t = String(texte).replace(/\s+/g, " ").trim();
+    if (!t) return;
+    var o = opts || {};
+    try {
+      synth.cancel();
+      var u = new SpeechSynthesisUtterance(t);
+      u.lang = "fr-FR";
+      u.rate = o.rate || 1;
+      u.pitch = o.pitch || 1;
+      u.volume = 1;
+      if (voixFr) u.voice = voixFr;
+      u.onerror = function (e) { log("erreur TTS :", e.error); };
+      synth.speak(u);
+      lastSpoken = t;
+      lastSpokenAt = Date.now();
+    } catch (e) {
+      log("impossible de parler :", e);
+    }
   }
 
   function arreterVoix() {
-    if (synth) synth.cancel();
+    if (synth) { try { synth.cancel(); } catch (e) {} }
+    lastSpoken = "";
   }
 
-  /* Bouton « Voix au focus » */
-  const btnVoix = $("#btn-voix");
+  /* ==========================================================================
+     SECTION 3 — BOUTONS VOIX / STOP / RACCOURCI ALT+L
+     ========================================================================== */
+  var btnVoix = $("#btn-voix");
+  var btnStop = $("#btn-stop");
+
   if (btnVoix) {
-    btnVoix.addEventListener("click", () => {
+    btnVoix.addEventListener("click", function () {
       voixActivee = !voixActivee;
       btnVoix.setAttribute("aria-pressed", String(voixActivee));
       btnVoix.textContent = voixActivee
         ? "🔊 Voix au focus : activée"
         : "🔇 Voix au focus : désactivée";
       if (!voixActivee) arreterVoix();
+      setTimeout(function () {
+        parler(voixActivee ? "Voix au focus activée" : "Voix au focus désactivée");
+      }, 120);
     });
   }
 
-  /* Bouton « Arrêter la lecture » */
-  const btnStop = $("#btn-stop");
-  if (btnStop) btnStop.addEventListener("click", arreterVoix);
+  if (btnStop) {
+    btnStop.addEventListener("click", arreterVoix);
+  }
 
-  /* Raccourci Alt + L pour couper la voix (comme indiqué dans l’en-tête) */
-  document.addEventListener("keydown", (e) => {
+  document.addEventListener("keydown", function (e) {
     if (e.altKey && (e.key === "l" || e.key === "L")) {
       e.preventDefault();
       arreterVoix();
@@ -60,145 +169,185 @@
     }
   });
 
-  /* Lecture automatique au focus (uniquement si la voix est activée) */
-  document.addEventListener("focusin", (e) => {
-    if (!voixActivee) return;
-    const cible = e.target;
-    if (!cible || cible === document.body) return;
-
-    // On ne vocalise que les éléments significatifs
-    const selecteurs = "summary, button, input, select, label, a, kbd, h2, h3, h4, p";
-    if (cible.matches(selecteurs)) {
-      let texte = "";
-      if (cible.matches("summary")) texte = cible.textContent;
-      else if (cible.matches("button")) texte = cible.textContent;
-      else if (cible.matches("label")) texte = cible.textContent;
-      else if (cible.matches("input")) {
-        const lab = cible.closest("label");
-        texte = lab ? lab.textContent : (cible.getAttribute("aria-label") || cible.value || "");
-      }
-      else if (cible.matches("select")) {
-        texte = cible.options[cible.selectedIndex]?.text || "";
-      }
-      else texte = cible.textContent;
-      parler(texte);
+  /* ==========================================================================
+     SECTION 4 — LECTURE AU FOCUS (avec debounce)
+     ========================================================================== */
+  function extraireTexte(cible) {
+    if (!cible || !cible.tagName) return "";
+    var tag = cible.tagName.toUpperCase();
+    if (tag === "SUMMARY" || tag === "BUTTON" || tag === "LABEL" || tag === "A") {
+      return cible.textContent || "";
     }
-  });
-
-  /* ============================================================
-     3. BOUTONS « LIRE À VOIX HAUTE » DANS CHAQUE FICHE
-     ============================================================ */
-  $$(".outils-carte .lire").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      e.preventDefault();
-      const carte = btn.closest("article.carte");
-      if (!carte) return;
-      const corps = $(".corps", carte);
-      if (!corps) return;
-      // On nettoie le texte (supprime les espaces superflus)
-      const texte = corps.innerText.replace(/\s+/g, " ").trim();
-      parler(texte);
-    });
-  });
-
-  /* ============================================================
-     4. FILTRAGE PAR NIVEAU (onglets)
-     ============================================================ */
-  const onglets = $$(".onglet");
-  const blocs = {
-    basique  : $("#bloc-basique"),
-    maitrisee: $("#bloc-maitrisee"),
-    avancee  : $("#bloc-avancee")
-  };
-
-  function afficherNiveau(niveau) {
-    // Mise à jour des boutons
-    onglets.forEach(b => {
-      b.setAttribute("aria-pressed", String(b.dataset.niveau === niveau));
-    });
-
-    // Affichage / masquage des blocs
-    Object.entries(blocs).forEach(([cle, bloc]) => {
-      if (!bloc) return;
-      if (niveau === "tout") bloc.hidden = false;
-      else bloc.hidden = (cle !== niveau);
-    });
-
-    // On replie toutes les fiches pour repartir proprement
-    $$("article.carte details").forEach(d => d.open = false);
-
-    // On remonte en haut du contenu
-    const cible = niveau === "tout" ? $("#contenu") : blocs[niveau];
-    if (cible) cible.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (tag === "SELECT") {
+      var opt = cible.options[cible.selectedIndex];
+      return opt ? opt.text : "";
+    }
+    if (tag === "INPUT") {
+      var lab = cible.closest("label");
+      if (lab) return lab.textContent || "";
+      return cible.getAttribute("aria-label") || cible.value || cible.placeholder || "";
+    }
+    return cible.textContent || "";
   }
 
-  onglets.forEach(btn => {
-    btn.addEventListener("click", () => afficherNiveau(btn.dataset.niveau));
+  document.addEventListener("focusin", function (e) {
+    if (!voixActivee) return;
+    var cible = e.target;
+    if (!cible || cible === document.body) return;
+    var sel = "summary, button, input, select, label, a, [tabindex]";
+    if (!cible.matches || !cible.matches(sel)) return;
+
+    var texte = extraireTexte(cible);
+    if (!texte || texte === lastSpoken) return;
+
+    if (focusTimer) clearTimeout(focusTimer);
+    focusTimer = setTimeout(function () {
+      if (!voixActivee) return;
+      if (texte === lastSpoken && (Date.now() - lastSpokenAt) < 800) return;
+      parler(texte);
+    }, 220);
+  }, true);
+
+  /* ==========================================================================
+     SECTION 5 — BOUTONS « LIRE À VOIX HAUTE » DES CARTES
+     ========================================================================== */
+  $$(".outils-carte .lire").forEach(function (btn) {
+    btn.addEventListener("click", function (e) {
+      e.preventDefault();
+      var carte = btn.closest("article.carte");
+      if (!carte) return;
+      var corps = carte.querySelector(".corps");
+      if (!corps) return;
+      lastSpoken = "";
+      parler(corps.innerText || corps.textContent || "");
+    });
   });
 
-  // Par défaut : basique
-  afficherNiveau("basique");
+  /* ==========================================================================
+     SECTION 6 — NAVIGATION PAR NIVEAU (onglets)
+     ========================================================================== */
+  var onglets = $$(".onglet");
+  var blocs = {
+    basique:   $("#bloc-basique"),
+    maitrisee: $("#bloc-maitrisee"),
+    avancee:   $("#bloc-avancee")
+  };
 
-  /* ============================================================
-     5. RECHERCHE DANS LES FICHES
-     ============================================================ */
-  const champRecherche = $("#q");
-  const resultatRecherche = $("#resultat-recherche");
-  const btnEffacer = $("#btn-effacer-recherche");
+  function replierFiches() {
+    $$("article.carte details").forEach(function (d) { d.open = false; });
+  }
+
+  function afficherNiveau(niveau) {
+    onglets.forEach(function (b) {
+      var actif = b.getAttribute("data-niveau") === niveau;
+      b.setAttribute("aria-pressed", actif ? "true" : "false");
+    });
+
+    if (niveau === "tout") {
+      Object.keys(blocs).forEach(function (k) {
+        if (blocs[k]) blocs[k].hidden = false;
+      });
+    } else {
+      Object.keys(blocs).forEach(function (k) {
+        if (!blocs[k]) return;
+        blocs[k].hidden = (k !== niveau);
+      });
+    }
+
+    replierFiches();
+
+    var cible = niveau === "tout" ? $("#contenu") : blocs[niveau];
+    if (cible && typeof cible.scrollIntoView === "function") {
+      try { cible.scrollIntoView({ behavior: "smooth", block: "start" }); } catch (e) {}
+    }
+  }
+
+  onglets.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var niveau = btn.getAttribute("data-niveau");
+      if (niveau) afficherNiveau(niveau);
+    });
+  });
+
+  if (onglets.length) {
+    var actif = onglets.find(function (b) { return b.getAttribute("aria-pressed") === "true"; });
+    afficherNiveau(actif ? actif.getAttribute("data-niveau") : "basique");
+  }
+
+  /* ==========================================================================
+     SECTION 7 — RECHERCHE
+     ========================================================================== */
+  var champRecherche = $("#q");
+  var resultatRecherche = $("#resultat-recherche");
+  var btnEffacer = $("#btn-effacer-recherche");
+  var dernierMessage = "";
 
   function filtrerCartes() {
-    const terme = (champRecherche?.value || "").toLowerCase().trim();
-    const cartes = $$("article.carte");
+    if (!champRecherche) return;
+    var terme = (champRecherche.value || "").toLowerCase().trim();
+    var cartes = $$("article.carte");
+    if (cartes.length === 0) return;
 
     if (!terme) {
-      cartes.forEach(c => c.hidden = false);
+      cartes.forEach(function (c) { c.hidden = false; });
       if (resultatRecherche) resultatRecherche.textContent = "";
+      dernierMessage = "";
       return;
     }
 
-    let trouvees = 0;
-    cartes.forEach(c => {
-      const txt = c.innerText.toLowerCase();
-      if (txt.includes(terme)) {
-        c.hidden = false;
+    var trouvees = 0;
+    cartes.forEach(function (carte) {
+      var txt = (carte.innerText || carte.textContent || "").toLowerCase();
+      if (txt.indexOf(terme) !== -1) {
+        carte.hidden = false;
         trouvees++;
-        // On ouvre automatiquement les résultats
-        const d = c.querySelector("details");
+        var d = carte.querySelector("details");
         if (d) d.open = true;
       } else {
-        c.hidden = true;
+        carte.hidden = true;
       }
     });
 
-    if (resultatRecherche) {
-      resultatRecherche.textContent = trouvees === 0
-        ? "Aucune fiche ne correspond à votre recherche."
-        : `${trouvees} fiche${trouvees > 1 ? "s" : ""} trouvée${trouvees > 1 ? "s" : ""}.`;
+    var message = trouvees === 0
+      ? "Aucune fiche ne correspond à votre recherche."
+      : trouvees + " fiche" + (trouvees > 1 ? "s" : "") + " trouvée" + (trouvees > 1 ? "s" : "") + ".";
+
+    if (resultatRecherche) resultatRecherche.textContent = message;
+
+    if (message !== dernierMessage && voixActivee) {
+      dernierMessage = message;
+      parler(message);
     }
   }
 
-  if (champRecherche) {
-    champRecherche.addEventListener("input", filtrerCartes);
-  }
+  if (champRecherche) champRecherche.addEventListener("input", filtrerCartes);
   if (btnEffacer) {
-    btnEffacer.addEventListener("click", () => {
+    btnEffacer.addEventListener("click", function () {
       if (champRecherche) champRecherche.value = "";
       filtrerCartes();
-      champRecherche?.focus();
+      if (champRecherche) champRecherche.focus();
     });
   }
 
-  /* ============================================================
-     6. PROGRESSION (cases à cocher)
-     ============================================================ */
-  const texteProgres = $("#texte-progres");
-  const barreProgres = $("#barre-progres");
-  const cases = $$('input[type="checkbox"][data-cle]');
+  /* ==========================================================================
+     SECTION 8 — PROGRESSION (persistante)
+     ========================================================================== */
+  var texteProgres = $("#texte-progres");
+  var barreProgres = $("#barre-progres");
+  var cases = $$('input[type="checkbox"][data-cle]');
+
+  function cleStockage(cle) { return "sv3-progres-" + cle; }
+
+  cases.forEach(function (c) {
+    try {
+      if (localStorage.getItem(cleStockage(c.getAttribute("data-cle"))) === "1") c.checked = true;
+    } catch (e) {}
+  });
 
   function mettreAJourProgression() {
-    const total = cases.length;
-    const cochees = cases.filter(c => c.checked).length;
-    const pourcent = total === 0 ? 0 : Math.round((cochees / total) * 100);
+    var total = cases.length;
+    var cochees = cases.filter(function (c) { return c.checked; }).length;
+    var pourcent = total === 0 ? 0 : Math.round((cochees / total) * 100);
 
     if (barreProgres) {
       barreProgres.value = pourcent;
@@ -206,171 +355,202 @@
     }
     if (texteProgres) {
       texteProgres.textContent =
-        `Progression : ${cochees} étape${cochees > 1 ? "s" : ""} terminée${cochees > 1 ? "s" : ""} sur ${total} (${pourcent} %).`;
+        "Progression : " + cochees + " étape" + (cochees > 1 ? "s" : "") +
+        " terminée" + (cochees > 1 ? "s" : "") + " sur " + total +
+        " (" + pourcent + " %).";
     }
   }
 
-  cases.forEach(c => c.addEventListener("change", mettreAJourProgression));
+  cases.forEach(function (c) {
+    c.addEventListener("change", function () {
+      try {
+        localStorage.setItem(cleStockage(c.getAttribute("data-cle")), c.checked ? "1" : "0");
+      } catch (e) {}
+      mettreAJourProgression();
+    });
+  });
   mettreAJourProgression();
 
-  /* ============================================================
-     7. QUIZ
-     ============================================================ */
-  const questions = {
+  /* ==========================================================================
+     SECTION 9 — QUIZ (génération dynamique)
+     ========================================================================== */
+  var QUIZ = {
     basique: [
-      {
-        q: "Quelle touche permet de valider l’élément sélectionné à l’écran ?",
-        reponses: ["La touche OK", "La touche Accueil", "La touche Effacer"],
-        bonne: 0
-      },
-      {
-        q: "Que fait un appui long sur la touche Accueil ?",
-        reponses: ["Ouvrir les applications récentes", "Revenir à l’écran d’accueil", "Ouvrir le volet des notifications"],
-        bonne: 0
-      },
-      {
-        q: "Quel geste permet d’ouvrir le volet des notifications avec Talkback ?",
-        reponses: ["Balayer à deux doigts vers le bas depuis le haut de l’écran", "Un appui long sur Retour", "Un double tapotement"],
-        bonne: 0
-      }
+      { q: "Quelle touche permet de valider l'élément sélectionné à l'écran ?",
+        reponses: ["La touche OK", "La touche Accueil", "La touche Effacer"], bonne: 0 },
+      { q: "Que fait un appui long sur la touche Accueil ?",
+        reponses: ["Ouvrir les applications récentes", "Revenir à l'écran d'accueil", "Ouvrir le volet des notifications"], bonne: 0 },
+      { q: "Quel geste permet d'ouvrir le volet des notifications avec Talkback ?",
+        reponses: ["Balayer à deux doigts vers le bas depuis le haut de l'écran", "Un appui long sur Retour", "Un double tapotement"], bonne: 0 },
+      { q: "Combien de profils audio le SmartVision3 propose-t-il ?",
+        reponses: ["5 : multimédia, appels, sonneries, alarmes, synthèse vocale", "2 : appels et multimédia", "3 : sonnerie, alarme, voix"], bonne: 0 }
     ],
     maitrisee: [
-      {
-        q: "Quel raccourci ouvre les paramètres rapides ?",
-        reponses: ["Dièse + 3", "Étoile + 1", "Dièse + 0"],
-        bonne: 0
-      },
-      {
-        q: "À quoi sert la fonction SOS ?",
-        reponses: ["À envoyer des appels et messages d’urgence géolocalisés", "À éteindre le téléphone à distance", "À réinitialiser les paramètres"],
-        bonne: 0
-      },
-      {
-        q: "Comment désactiver complètement l’écran tactile ?",
-        reponses: ["Dans Accessibilité KAPSYS › Désactiver l’écran tactile", "En appuyant sur Dièse + 7", "En maintenant OK + Effacer"],
-        bonne: 0
-      }
+      { q: "Quel raccourci ouvre les paramètres rapides ?",
+        reponses: ["Dièse + 3", "Étoile + 1", "Dièse + 0"], bonne: 0 },
+      { q: "À quoi sert la fonction SOS ?",
+        reponses: ["À envoyer des appels et messages d'urgence géolocalisés", "À éteindre le téléphone à distance", "À réinitialiser les paramètres"], bonne: 0 },
+      { q: "Comment désactiver complètement l'écran tactile ?",
+        reponses: ["Dans Accessibilité KAPSYS › Désactiver l'écran tactile", "En appuyant sur Dièse + 7", "En maintenant OK + Effacer"], bonne: 0 },
+      { q: "Combien de jours les contacts supprimés restent-ils dans la corbeille ?",
+        reponses: ["30 jours", "7 jours", "Ils sont supprimés immédiatement"], bonne: 0 }
     ],
     avancee: [
-      {
-        q: "Quel mode de Kapten donne la distance et la direction à vol d’oiseau ?",
-        reponses: ["Le guidage cardinal", "La navigation piétonne", "La lecture de carte"],
-        bonne: 0
-      },
-      {
-        q: "Que signifie un cap « 3 heures » en guidage cardinal ?",
-        reponses: ["Dirigez-vous sur votre droite", "Allez tout droit", "Faites demi-tour"],
-        bonne: 0
-      },
-      {
-        q: "Quel code compose-t-on pour réinitialiser les paramètres Talkback ?",
-        reponses: ["*#111#", "*#333#", "*#123#"],
-        bonne: 0
-      }
+      { q: "Quel mode de Kapten donne la distance et la direction à vol d'oiseau ?",
+        reponses: ["Le guidage cardinal", "La navigation piétonne", "La lecture de carte"], bonne: 0 },
+      { q: "Que signifie un cap « 3 heures » en guidage cardinal ?",
+        reponses: ["Dirigez-vous sur votre droite", "Allez tout droit", "Faites demi-tour"], bonne: 0 },
+      { q: "Quel code compose-t-on pour réinitialiser les paramètres Talkback ?",
+        reponses: ["*#111#", "*#333#", "*#123#"], bonne: 0 },
+      { q: "Sur quel code compose-t-on pour réinitialiser complètement le téléphone ?",
+        reponses: ["*#333#", "*#111#", "*#000#"], bonne: 0 }
     ]
   };
 
   function construireQuiz(idConteneur, cleNiveau) {
-    const conteneur = $("#" + idConteneur);
+    var conteneur = $("#" + idConteneur);
     if (!conteneur) return;
-    const liste = questions[cleNiveau];
-    if (!liste) return;
+    var liste = QUIZ[cleNiveau];
+    if (!liste || !liste.length) return;
 
     conteneur.innerHTML = "";
 
-    liste.forEach((item, index) => {
-      const fieldset = document.createElement("fieldset");
+    liste.forEach(function (item, index) {
+      var fieldset = document.createElement("fieldset");
       fieldset.className = "question";
 
-      const legend = document.createElement("legend");
-      legend.textContent = `Question ${index + 1} — ${item.q}`;
+      var legend = document.createElement("legend");
+      legend.textContent = "Question " + (index + 1) + " — " + item.q;
       fieldset.appendChild(legend);
 
-      item.reponses.forEach((rep, i) => {
-        const label = document.createElement("label");
+      item.reponses.forEach(function (rep, i) {
+        var label = document.createElement("label");
         label.className = "reponse";
 
-        const input = document.createElement("input");
+        var input = document.createElement("input");
         input.type = "radio";
-        input.name = `quiz-${cleNiveau}-${index}`;
-        input.value = i;
+        input.name = "quiz-" + cleNiveau + "-" + index;
+        input.value = String(i);
+        input.id = "q-" + cleNiveau + "-" + index + "-" + i;
 
         label.appendChild(input);
         label.appendChild(document.createTextNode(" " + rep));
         fieldset.appendChild(label);
       });
 
-      const btn = document.createElement("button");
+      var btn = document.createElement("button");
       btn.type = "button";
       btn.textContent = "Vérifier";
       fieldset.appendChild(btn);
 
-      const retour = document.createElement("p");
+      var retour = document.createElement("p");
       retour.className = "retour";
       retour.setAttribute("aria-live", "polite");
       fieldset.appendChild(retour);
 
-      btn.addEventListener("click", () => {
-        const selection = fieldset.querySelector('input[type="radio"]:checked');
+      btn.addEventListener("click", function () {
+        var selection = fieldset.querySelector('input[type="radio"]:checked');
+        var message, classe;
+
         if (!selection) {
-          retour.textContent = "Veuillez sélectionner une réponse.";
-          retour.className = "retour faux";
-          return;
-        }
-        const choix = parseInt(selection.value, 10);
-        if (choix === item.bonne) {
-          retour.textContent = "✅ Bonne réponse !";
-          retour.className = "retour bon";
+          message = "Veuillez sélectionner une réponse.";
+          classe = "retour faux";
         } else {
-          retour.textContent = `❌ Réponse incorrecte. La bonne réponse était : « ${item.reponses[item.bonne]} ».`;
-          retour.className = "retour faux";
+          var choix = parseInt(selection.value, 10);
+          if (choix === item.bonne) {
+            message = "✅ Bonne réponse !";
+            classe = "retour bon";
+          } else {
+            message = "❌ Réponse incorrecte. La bonne réponse était : « " + item.reponses[item.bonne] + " ».";
+            classe = "retour faux";
+          }
         }
-        // Vocalisation du retour
-        if (voixActivee) parler(retour.textContent);
+
+        retour.textContent = message;
+        retour.className = classe;
+
+        if (voixActivee) parler(message);
       });
 
       conteneur.appendChild(fieldset);
     });
   }
 
-  construireQuiz("quiz-basique", "basique");
+  construireQuiz("quiz-basique",   "basique");
   construireQuiz("quiz-maitrisee", "maitrisee");
-  // Le quiz avancé n’est pas présent dans le HTML fourni, mais on peut l’ajouter
-  // construireQuiz("quiz-avancee", "avancee");
+  construireQuiz("quiz-avancee",   "avancee");
 
-  /* ============================================================
-     8. THÈMES ET TAILLE DE TEXTE
-     ============================================================ */
-  const choixTheme = $("#choix-theme");
+  /* ==========================================================================
+     SECTION 10 — THÈME (persistant)
+     ========================================================================== */
+  var choixTheme = $("#choix-theme");
+
+  function appliquerTheme(val) {
+    document.body.classList.remove("clair", "contraste");
+    if (val === "clair")     document.body.classList.add("clair");
+    if (val === "contraste") document.body.classList.add("contraste");
+  }
+
   if (choixTheme) {
-    choixTheme.addEventListener("change", () => {
-      document.body.classList.remove("clair", "contraste");
-      if (choixTheme.value === "clair") document.body.classList.add("clair");
-      if (choixTheme.value === "contraste") document.body.classList.add("contraste");
+    try {
+      var sauvegarde = localStorage.getItem("sv3-theme");
+      if (sauvegarde && choixTheme.querySelector('option[value="' + sauvegarde + '"]')) {
+        choixTheme.value = sauvegarde;
+      }
+    } catch (e) {}
+    appliquerTheme(choixTheme.value);
+    choixTheme.addEventListener("change", function () {
+      appliquerTheme(choixTheme.value);
+      try { localStorage.setItem("sv3-theme", choixTheme.value); } catch (e) {}
     });
   }
 
-  const btnPlus = $("#btn-plus");
-  const btnMoins = $("#btn-moins");
-  let taille = 1.1; // valeur de départ en rem
+  /* ==========================================================================
+     SECTION 11 — TAILLE DE TEXTE (persistante)
+     ========================================================================== */
+  var btnPlus  = $("#btn-plus");
+  var btnMoins = $("#btn-moins");
+  var taille = 1.1;
+
+  try {
+    var sauvegardeTaille = parseFloat(localStorage.getItem("sv3-taille"));
+    if (!isNaN(sauvegardeTaille) && sauvegardeTaille >= 0.8 && sauvegardeTaille <= 2) {
+      taille = sauvegardeTaille;
+    }
+  } catch (e) {}
 
   function appliquerTaille() {
-    taille = Math.min(2, Math.max(0.8, taille));
+    taille = Math.min(2, Math.max(0.8, Math.round(taille * 10) / 10));
     document.documentElement.style.setProperty("--taille", taille + "rem");
+    try { localStorage.setItem("sv3-taille", String(taille)); } catch (e) {}
+  }
+  appliquerTaille();
+
+  if (btnPlus)  btnPlus.addEventListener("click", function () { taille += 0.1; appliquerTaille(); });
+  if (btnMoins) btnMoins.addEventListener("click", function () { taille -= 0.1; appliquerTaille(); });
+
+  /* ==========================================================================
+     SECTION 12 — LIRE L'INTRODUCTION
+     ========================================================================== */
+  var btnLirePage = $("#btn-lire-page");
+  if (btnLirePage) {
+    btnLirePage.addEventListener("click", function () {
+      var intro = $(".intro-niveau");
+      if (intro) parler(intro.innerText || intro.textContent || "");
+    });
   }
 
-  if (btnPlus) btnPlus.addEventListener("click", () => { taille += 0.1; appliquerTaille(); });
-  if (btnMoins) btnMoins.addEventListener("click", () => { taille -= 0.1; appliquerTaille(); });
-
-  /* ============================================================
-     9. LECTURE DE L’INTRODUCTION (bouton dédié)
-     ============================================================ */
-  const btnLirePage = $("#btn-lire-page");
-  if (btnLirePage) {
-    btnLirePage.addEventListener("click", () => {
-      const intro = $(".intro-niveau");
-      if (intro) parler(intro.innerText.replace(/\s+/g, " ").trim());
+  /* ==========================================================================
+     SECTION 13 — LANCEMENT
+     ========================================================================== */
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", function () {
+      afficherBandeauDiagnostic();
+      log("script initialisé (DOMContentLoaded)");
     });
+  } else {
+    afficherBandeauDiagnostic();
+    log("script initialisé (immédiat)");
   }
 
 })();
