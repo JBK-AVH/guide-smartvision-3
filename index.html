@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Guide interactif et vocal du SmartVision3 : prise en main basique, maîtrisée et avancée. Conçu pour les personnes déficientes visuelles.">
+<title>SmartVision3 — Guide interactif d'utilisation</title>
+<style>
+  :root{
+    --fond:#10151c; --fond2:#1a2330; --fond3:#243040;
+    --texte:#eef3f8; --texte2:#c8d4e2;
+    --accent:#ffcf33; --accent2:#7cc4ff;
+    --bord:#3a4a5e; --ok:#5fdc8b; --ko:#ff8a80;
+    --taille:1.1rem;
+  }
+  body.clair{
+    --fond:#ffffff; --fond2:#f1f5fa; --fond3:#e2e9f2;
+    --texte:#0c1218; --texte2:#2b3a4a;
+    --accent:#0b4a8f; --accent2:#8a3b00;
+    --bord:#a9b6c6; --ok:#0f6b32; --ko:#a4160a;
+  }
+  body.contraste{
+    --fond:#000000; --fond2:#000000; --fond3:#000000;
+    --texte:#ffffff; --texte2:#ffffff;
+    --accent:#ffff00; --accent2:#00ffff;
+    --bord:#ffff00; --ok:#00ff00; --ko:#ff5555;
+  }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} }
+
+  body{
+    margin:0; padding:0;
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu,Arial,sans-serif;
+    font-size:var(--taille);
+    line-height:1.65;
+    background:var(--fond);
+    color:var(--texte);
+  }
+
+  h1,h2,h3,h4{ line-height:1.25; margin:.2em 0 .5em; }
+  h1{ font-size:1.9em; }
+  h2{ font-size:1.5em; color:var(--accent); border-bottom:3px solid var(--accent); padding-bottom:.25em; margin-top:1.6em;}
+  h3{ font-size:1.2em; }
+  p, li{ max-width:70ch; }
+  a{ color:var(--accent2); text-decoration:underline; text-underline-offset:3px; }
+  a:hover, a:focus{ background:var(--fond3); }
+
+  /* Focus très visible */
+  a:focus-visible, button:focus-visible, input:focus-visible,
+  select:focus-visible, summary:focus-visible, label:focus-visible{
+    outline:5px solid var(--accent);
+    outline-offset:3px;
+    border-radius:4px;
+  }
+  body.contraste a:focus-visible,
+  body.contraste button:focus-visible,
+  body.contraste summary:focus-visible{
+    outline:5px solid #00ffff;
+  }
+
+  /* Lien d'évitement */
+  .evitement{
+    position:absolute; left:-9999px; top:0; z-index:100;
+    background:var(--accent); color:#000; padding:.8em 1.2em;
+    font-weight:bold; border-radius:0 0 8px 0;
+  }
+  .evitement:focus{ left:0; }
+
+  header.bandeau{
+    background:var(--fond2);
+    border-bottom:4px solid var(--accent);
+    padding:1.2em 1em 1.4em;
+  }
+  header.bandeau h1{ margin-top:0; }
+  .sous-titre{ color:var(--texte2); margin-top:-.3em; }
+
+  .barre-outils{
+    display:flex; flex-wrap:wrap; gap:.6em; margin-top:1em;
+  }
+  .barre-outils button, .barre-outils select{
+    font:inherit; font-weight:600;
+    background:var(--fond3); color:var(--texte);
+    border:3px solid var(--bord);
+    border-radius:10px;
+    padding:.6em 1em;
+    min-height:52px;
+    cursor:pointer;
+  }
+  .barre-outils button[aria-pressed="true"]{
+    background:var(--accent); color:#000; border-color:var(--accent);
+  }
+  body.contraste .barre-outils button,
+  body.contraste .barre-outils select{ border:3px solid #ffff00; color:#fff; background:#000; }
+  body.contraste .barre-outils button[aria-pressed="true"]{ background:#ffff00; color:#000; }
+
+  nav.aide{
+    padding:1em; background:var(--fond2);
+    border-bottom:2px solid var(--bord);
+    position:sticky; top:0; z-index:20;
+  }
+  .onglets{ display:flex; flex-wrap:wrap; gap:.5em; margin-bottom:.8em; }
+  .onglets button{
+    font:inherit; font-weight:700;
+    background:var(--fond3); color:var(--texte);
+    border:3px solid var(--bord); border-radius:999px;
+    padding:.55em 1.2em; min-height:48px; cursor:pointer;
+  }
+  .onglets button[aria-pressed="true"]{
+    background:var(--accent); color:#000; border-color:var(--accent);
+  }
+  body.contraste .onglets button{ background:#000; color:#fff; border:3px solid #ffff00; }
+  body.contraste .onglets button[aria-pressed="true"]{ background:#ffff00; color:#000; }
+
+  .recherche{ display:flex; flex-wrap:wrap; gap:.6em; align-items:center; }
+  .recherche label{ font-weight:700; }
+  .recherche input{
+    font:inherit; flex:1 1 16em; min-height:52px;
+    padding:.5em .8em; border-radius:10px;
+    border:3px solid var(--bord);
+    background:var(--fond); color:var(--texte);
+  }
+
+  main{ padding:1em 1em 4em; max-width:70em; margin:0 auto; }
+
+  .intro-niveau{
+    background:var(--fond2); border-left:8px solid var(--accent);
+    padding:1em 1.2em; border-radius:8px; margin:1em 0 2em;
+  }
+
+  article.carte{
+    background:var(--fond2);
+    border:2px solid var(--bord);
+    border-radius:12px;
+    margin:0 0 1em;
+    overflow:hidden;
+  }
+  body.contraste article.carte{ border:3px solid #ffff00; }
+
+  article.carte summary{
+    padding:1em 1.2em;
+    font-weight:700; font-size:1.1em;
+    cursor:pointer;
+    list-style-position:inside;
+    min-height:56px;
+    display:flex; align-items:center; gap:.6em;
+  }
+  article.carte summary::marker{ color:var(--accent); font-size:1.3em; }
+  article.carte[open] summary{ background:var(--fond3); border-bottom:2px solid var(--bord); }
+
+  .corps{ padding:1em 1.2em .4em; }
+  .outils-carte{
+    display:flex; flex-wrap:wrap; gap:1em; align-items:center;
+    padding:.9em 1.2em 1.2em;
+    border-top:1px dashed var(--bord);
+  }
+  .outils-carte button{
+    font:inherit; font-weight:700;
+    background:var(--accent); color:#000;
+    border:3px solid var(--accent); border-radius:10px;
+    padding:.5em 1em; min-height:48px; cursor:pointer;
+  }
+  body.contraste .outils-carte button{ background:#ffff00; color:#000; border-color:#ffff00; }
+
+  .case-fait{
+    display:inline-flex; align-items:center; gap:.6em;
+    font-weight:600; cursor:pointer;
+    padding:.5em .8em; border-radius:10px;
+    border:2px solid var(--bord);
+  }
+  .case-fait input{ width:1.6em; height:1.6em; accent-color:var(--accent); cursor:pointer; }
+
+  /* Tableaux */
+  .tableau-defilant{ overflow-x:auto; margin:1em 0; }
+  table{ border-collapse:collapse; width:100%; font-size:.97em; }
+  caption{ text-align:left; font-weight:700; padding:.4em 0; }
+  th, td{ border:2px solid var(--bord); padding:.55em .7em; text-align:left; vertical-align:top; }
+  th{ background:var(--fond3); }
+  body.contraste th{ background:#000; color:#ffff00; }
+
+  kbd{
+    display:inline-block; font-family:inherit; font-weight:700;
+    background:var(--fond3); color:var(--texte);
+    border:2px solid var(--bord); border-bottom-width:4px;
+    border-radius:6px; padding:.05em .5em; margin:0 .1em;
+  }
+  body.contraste kbd{ background:#000; border-color:#ffff00; }
+
+  .astuce{
+    background:var(--fond3); border-left:6px solid var(--accent2);
+    padding:.8em 1em; border-radius:6px; margin:1em 0;
+  }
+  .danger{
+    background:var(--fond3); border-left:6px solid var(--ko);
+    padding:.8em 1em; border-radius:6px; margin:1em 0;
+  }
+
+  /* Quiz */
+  .quiz{ margin-top:2.5em; background:var(--fond2); border:2px solid var(--bord); border-radius:12px; padding:1em 1.2em 1.4em; }
+  body.contraste .quiz{ border:3px solid #ffff00; }
+  fieldset.question{ border:2px solid var(--bord); border-radius:10px; padding:.8em 1em 1em; margin:0 0 1.2em; }
+  fieldset.question legend{ font-weight:700; padding:0 .4em; }
+  label.reponse{
+    display:block; padding:.55em .6em; margin:.3em 0;
+    border-radius:8px; cursor:pointer; border:2px solid transparent;
+  }
+  label.reponse:hover{ background:var(--fond3); }
+  label.reponse input{ width:1.4em; height:1.4em; margin-right:.6em; accent-color:var(--accent); vertical-align:middle; }
+  fieldset.question > button{
+    font:inherit; font-weight:700; margin-top:.6em;
+    background:var(--accent); color:#000; border:3px solid var(--accent);
+    border-radius:10px; padding:.55em 1.2em; min-height:48px; cursor:pointer;
+  }
+  body.contraste fieldset.question > button{ background:#ffff00; color:#000; border-color:#ffff00; }
+  .retour{ font-weight:700; margin-top:.7em; }
+  .retour.bon{ color:var(--ok); }
+  .retour.faux{ color:var(--ko); }
+
+  .progres-zone{ margin-top:.8em; }
+  progress{ width:100%; max-width:32em; height:1.3em; accent-color:var(--accent); }
+  .progres-texte{ margin:.4em 0 0; font-weight:600; }
+
+  footer.pied{
+    border-top:4px solid var(--accent);
+    background:var(--fond2);
+    padding:1.5em 1em 3em;
+    font-size:.95em;
+  }
+  footer.pied p{ max-width:70ch; }
+
+  .visuellement-cache{
+    position:absolute!important; width:1px; height:1px;
+    overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap;
+  }
+
+  @media (max-width:600px){
+    :root{ --taille:1.15rem; }
+    h1{ font-size:1.5em; }
+    main{ padding:.6em .6em 3em; }
+    .barre-outils button, .onglets button{ flex:1 1 auto; }
+  }
+
+  @media print{
+    nav.aide, .barre-outils, .outils-carte, .quiz{ display:none; }
+    body{ background:#fff; color:#000; }
+    article.carte{ break-inside:avoid; border:1px solid #000; }
+    details{ display:block; }
+    details > .corps{ display:block !important; }
+  }
+</style>
+</head>
+<body class="">
+
+<a class="evitement" href="#contenu">Aller directement au contenu principal</a>
+
+<header class="bandeau">
+  <h1>SmartVision3 — Guide interactif</h1>
+  <p class="sous-titre">Prise en main <strong>basique</strong>, <strong>maîtrisée</strong> et <strong>avancée</strong> · Page vocalisable · Contraste et taille de texte réglables</p>
+
+  <div class="barre-outils" role="group" aria-label="Réglages d'accessibilité de cette page">
+    <button type="button" id="btn-voix" aria-pressed="true">🔊 Voix au focus : activée</button>
+    <button type="button" id="btn-stop">⏹ Arrêter la lecture</button>
+    <button type="button" id="btn-plus">A+ Agrandir le texte</button>
+    <button type="button" id="btn-moins">A− Réduire le texte</button>
+    <button type="button" id="btn-lire-page">▶ Lire l'introduction</button>
+    <label for="choix-theme" class="visuellement-cache">Thème d'affichage</label>
+    <select id="choix-theme">
+      <option value="sombre">Thème : sombre (par défaut)</option>
+      <option value="clair">Thème : clair</option>
+      <option value="contraste">Thème : contraste maximal (noir / jaune)</option>
+    </select>
+  </div>
+
+  <p class="astuce" style="margin-bottom:0">
+    <strong>Vous utilisez déjà un lecteur d'écran ?</strong>
+    Appuyez sur <kbd>Alt</kbd> + <kbd>L</kbd> pour couper la voix de cette page et éviter le double énoncé.
+    Les boutons « Lire à voix haute » de chaque fiche restent disponibles.
+  </p>
+</header>
+
+<nav class="aide" aria-label="Navigation dans le guide">
+  <div class="onglets" role="group" aria-label="Choisir un niveau">
+    <button type="button" class="onglet" data-niveau="basique" aria-pressed="true">1 · Prise en main basique</button>
+    <button type="button" class="onglet" data-niveau="maitrisee" aria-pressed="false">2 · Prise en main maîtrisée</button>
+    <button type="button" class="onglet" data-niveau="avancee" aria-pressed="false">3 · Prise en main avancée</button>
+    <button type="button" class="onglet" data-niveau="tout" aria-pressed="false">Tout afficher</button>
+  </div>
+
+  <div class="recherche">
+    <label for="q">Rechercher une fonction :</label>
+    <input type="search" id="q" placeholder="Exemple : raccourci, NFC, Kapten, alarme…" autocomplete="off">
+    <button type="button" id="btn-effacer-recherche">Effacer</button>
+  </div>
+
+  <div class="progres-zone">
+    <p class="progres-texte" id="texte-progres" aria-live="polite">Progression : 0 étape terminée.</p>
+    <progress id="barre-progres" max="100" value="0">0 %</progress>
+  </div>
+
+  <p id="resultat-recherche" class="progres-texte" aria-live="polite"></p>
+</nav>
+
+<main id="contenu">
+
+<!-- ============================================================
+     NIVEAU 1 — BASIQUE
+     ============================================================ -->
+<section id="bloc-basique" data-bloc="basique" aria-labelledby="titre-basique">
+
+  <h2 id="titre-basique">Niveau 1 — Prise en main basique</h2>
+  <p class="intro-niveau">
+    Objectif : savoir tenir, allumer, recharger le téléphone et réaliser les gestes du quotidien
+    (téléphoner, envoyer un message, écrire du texte, régler le volume).
+    Toutes les actions de ce niveau se font avec le <strong>clavier physique</strong> ou la <strong>voix</strong>.
+  </p>
+
+  <article class="carte" data-niveau="basique">
+    <details>
+      <summary>Découvrir les éléments du téléphone</summary>
+      <div class="corps">
+        <h4>Face avant</h4>
+        <ul>
+          <li><strong>Écran tactile 3,5 pouces</strong> en haut. Au-dessus : le haut-parleur d'écoute et la caméra frontale 5 Mpx.</li>
+          <li><strong>Pavé directionnel</strong> (joystick carré arrondi) sous l'écran. Chaque côté est en relief. La touche centrale <kbd>OK</kbd> est texturée.</li>
+          <li>À gauche du joystick : <kbd>Accueil</kbd> (au-dessus) et <kbd>Menu</kbd> (en dessous).</li>
+          <li>À droite du joystick : <kbd>Retour</kbd> (au-dessus) et <kbd>Effacer</kbd> (en dessous).</li>
+          <li><strong>Pavé numérique</strong> de 12 touches : 1 2 3 / 4 5 6 / 7 8 9 / étoile 0 dièse. Repère en relief sur la touche <kbd>5</kbd>.</li>
+        </ul>
+        <h4>Les tranches</h4>
+        <ul>
+          <li><strong>Dessus :</strong> prise casque jack 3,5 mm (à gauche) et bouton <kbd>Marche/Arrêt</kbd> (à droite).</li>
+          <li><strong>Côté droit :</strong> bouton de <strong>commande vocale</strong> (texturé), puis <kbd>Volume +</kbd> et <kbd>Volume −</kbd>.</li>
+          <li><strong>Dessous :</strong> connecteur USB type C, microphone, haut-parleur principal.</li>
+          <li><strong>Côté gauche :</strong> tiroir pour la carte SIM et la carte micro SD.</li>
+          <li><strong>Face arrière :</strong> double caméra 16 + 2 Mpx et capteur d'empreintes digitales.</li>
+        </ul>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="b1"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="basique">
+    <details>
+      <summary>Les touches de navigation (le pavé directionnel)</summary>
+      <div class="corps">
+        <ul>
+          <li><kbd>Haut</kbd> appui court : sélectionne l'élément <strong>précédent</strong> à l'écran.</li>
+          <li><kbd>Haut</kbd> appui long : sélectionne le <strong>premier</strong> élément de l'écran.</li>
+          <li><kbd>Bas</kbd> appui court : sélectionne l'élément <strong>suivant</strong>.</li>
+          <li><kbd>Bas</kbd> appui long : sélectionne le <strong>dernier</strong> élément de l'écran.</li>
+          <li><kbd>OK</kbd> appui court : <strong>valide</strong> l'élément sélectionné (ouvre un écran, confirme une action).</li>
+          <li><kbd>OK</kbd> appui long : ouvre le <strong>menu contextuel</strong> de l'élément (modifier, supprimer, transférer, partager, déplacer…).</li>
+          <li><kbd>Gauche</kbd> / <kbd>Droite</kbd> appui court : élément précédent / suivant <em>selon la commande de lecture activée</em>.</li>
+          <li><kbd>Gauche</kbd> / <kbd>Droite</kbd> appui long : change la <strong>commande de lecture</strong> (caractère, mot, ligne, paragraphe, titre, lien…).</li>
+        </ul>
+        <p class="astuce">Par défaut, seuls les modes « Caractères » et « Mots » sont associés aux appuis longs Gauche et Droite. Vous pouvez en ajouter dans les paramètres Talkback, section « Personnaliser les menus », puis « Personnaliser les commandes de lecture ».</p>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="b2"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="basique">
+    <details>
+      <summary>Les touches de fonction : Accueil, Menu, Retour, Effacer</summary>
+      <div class="corps">
+        <div class="tableau-defilant">
+          <table>
+            <caption>Appuis courts et appuis longs des touches de fonction</caption>
+            <thead>
+              <tr><th scope="col">Touche</th><th scope="col">Appui court</th><th scope="col">Appui long</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><kbd>Accueil</kbd></td><td>Revenir à l'écran d'accueil</td><td>Ouvrir les <strong>applications récentes</strong></td></tr>
+              <tr><td><kbd>Menu</kbd></td><td>Ouvrir les options de l'écran affiché</td><td>Ouvrir le <strong>menu d'accessibilité Talkback</strong></td></tr>
+              <tr><td><kbd>Retour</kbd></td><td>Revenir en arrière, fermer le clavier virtuel</td><td>Ouvrir le <strong>volet des notifications</strong></td></tr>
+              <tr><td><kbd>Effacer</kbd></td><td>Effacer un caractère</td><td>Effacer <strong>tout</strong> le contenu de la zone de saisie</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="astuce">Certains écrans ne possèdent pas de menu : dans ce cas, l'appui court sur <kbd>Menu</kbd> n'a aucun effet.</p>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="b3"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="basique">
+    <details>
+      <summary>Allumer, éteindre, mettre en veille, redémarrer</summary>
+      <div class="corps">
+        <h4>Allumer</h4>
+        <p>Maintenez appuyé le bouton <kbd>Marche/Arrêt</kbd> (tranche supérieure). Dès que le téléphone vibre, relâchez.</p>
+        <h4>Éteindre</h4>
+        <p>Appui long sur <kbd>Marche/Arrêt</kbd>, puis choisissez « Marche/arrêt » et « Éteindre ».</p>
+        <h4>Redémarrer</h4>
+        <p>Appui long sur <kbd>Marche/Arrêt</kbd>, puis « Marche/arrêt » et « Redémarrer ».</p>
+        <p class="danger"><strong>Téléphone bloqué :</strong> maintenez le bouton <kbd>Marche/Arrêt</kbd> pendant <strong>10 secondes</strong> : l'appareil redémarre automatiquement.</p>
+        <h4>Mettre en veille / réveiller</h4>
+        <p>Un appui court sur <kbd>Marche/Arrêt</kbd> éteint l'écran et désactive le clavier. Les appels et messages continuent d'arriver. Par défaut, la veille s'active après 1 minute d'inactivité.</p>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="b4"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="basique">
+    <details>
+      <summary>Charger le téléphone (filaire et sans fil)</summary>
+      <div class="corps">
+        <h4>Chargement filaire</h4>
+        <p>Branchez le câble USB type C entre le téléphone et le chargeur secteur fourni, puis le chargeur sur une prise murale.</p>
+        <h4>Chargement sans fil (pack OMNI)</h4>
+        <p>Branchez le chargeur sans fil au secteur, puis posez le dos du SmartVision3 au centre de la station.</p>
+        <p class="danger"><strong>Précautions sans fil :</strong> ne placez pas de carte bancaire, de badge RFID, d'objet métallique ni d'aimant entre le téléphone et la station.</p>
+        <div class="astuce">
+          <ul>
+            <li>Batterie totalement vide : laissez charger quelques minutes avant d'allumer.</li>
+            <li>Le téléphone peut chauffer pendant la charge : c'est normal. Si la température est trop élevée, la charge ralentit ou s'interrompt.</li>
+            <li>Pour économiser la batterie : baissez la luminosité, réduisez le délai de veille, coupez Wi-Fi et Bluetooth inutilisés.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="b5"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="basique">
+    <details>
+      <summary>Insérer la carte SIM et la carte micro SD</summary>
+      <div class="corps">
+        <p class="danger"><strong>Faites-vous accompagner d'une personne voyante</strong> pour cette opération. N'utilisez que des cartes <strong>Nano SIM</strong> non modifiées.</p>
+        <ol>
+          <li>Posez le téléphone à plat, face vers le haut.</li>
+          <li>Insérez la pointe de l'outil d'extraction (fourni) bien perpendiculairement dans le petit trou du tiroir, sur la tranche gauche, jusqu'à éjection.</li>
+          <li>Retirez délicatement le tiroir. Il possède deux compartiments : à gauche une carte SIM <em>ou</em> une carte micro SD, à droite une carte SIM uniquement.</li>
+          <li>Placez la carte, <strong>puces métalliques vers le bas</strong>, coin biseauté en bas à droite.</li>
+          <li>Réinsérez le tiroir bien à plat, à fond, sans dépasser.</li>
+        </ol>
+        <p>Cartes micro SD acceptées : jusqu'à <strong>128 Go</strong> (non fournie).</p>
+        <p class="astuce">L'ordre des cartes SIM dans le tiroir n'a pas d'importance. Le choix de la carte utilisée se fait dans <em>Paramètres › Réseau et internet</em>.</p>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="b6"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="basique">
+    <details>
+      <summary>Régler le volume</summary>
+      <div class="corps">
+        <p>Les touches <kbd>Volume +</kbd> et <kbd>Volume −</kbd> (tranche droite) règlent le profil audio en cours d'utilisation. Il existe 5 profils : multimédia, appels, sonneries et notifications, alarmes, synthèse vocale.</p>
+        <p class="astuce"><strong>Astuce accessibilité :</strong> maintenez un doigt posé sur l'écran et utilisez les boutons de volume : vous réglerez directement le volume de la <strong>synthèse vocale</strong>, sans changer les autres volumes.</p>
+        <p>Réglage fin : <em>Paramètres › Son</em>. Avec Talkback activé, les barres de réglage latérales sont inversées : <kbd>Gauche</kbd> augmente la valeur, <kbd>Droite</kbd> la diminue.</p>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="b7"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="basique">
+    <details>
+      <summary>Écrire du texte avec le clavier physique</summary>
+      <div class="corps">
+        <p>Quand le téléphone annonce « Zone de modification », appuyez sur <kbd>OK</kbd> pour commencer à taper. Appuyez à nouveau sur <kbd>OK</kbd> pour confirmer.</p>
+        <p>Appuyez plusieurs fois rapidement sur la même touche pour faire défiler les caractères.</p>
+        <div class="tableau-defilant">
+          <table>
+            <caption>Caractères disponibles sur chaque touche du clavier physique</caption>
+            <thead><tr><th scope="col">Touche</th><th scope="col">Caractères</th></tr></thead>
+            <tbody>
+              <tr><td><kbd>1</kbd></td><td>. , ? ! @ - _ ' " ( ) / : ; + &amp; % * = &lt; &gt; € £ $ ¥ ¤ \ [ ] { } | ^ ` ¿ ¡ §</td></tr>
+              <tr><td><kbd>2</kbd></td><td>a b c 2 à â ç ä æ A B C À Â Ç Ä Æ</td></tr>
+              <tr><td><kbd>3</kbd></td><td>d e f 3 é è ê ë D E F É È Ê Ë</td></tr>
+              <tr><td><kbd>4</kbd></td><td>g h i 4 î ï G H I Î Ï</td></tr>
+              <tr><td><kbd>5</kbd></td><td>j k l 5 J K L</td></tr>
+              <tr><td><kbd>6</kbd></td><td>m n o 6 ô œ ñ ó ò ö M N O Ô Œ Ñ Ó Ò Ö</td></tr>
+              <tr><td><kbd>7</kbd></td><td>p q r s 7 P Q R S</td></tr>
+              <tr><td><kbd>8</kbd></td><td>t u v 8 ù û ü T U V Ù Û Ü</td></tr>
+              <tr><td><kbd>9</kbd></td><td>w x y z 9 ÿ W X Y Z Ÿ</td></tr>
+              <tr><td><kbd>0</kbd></td><td>Espace, 0, nouvelle ligne</td></tr>
+              <tr><td><kbd>Étoile</kbd></td><td>Verrouillage majuscule / numérique</td></tr>
+              <tr><td><kbd>Dièse</kbd></td><td>Insérer le caractère dièse</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p><strong>Supprimer :</strong> <kbd>Effacer</kbd> court supprime le dernier caractère, long supprime tout.</p>
+        <p><strong>Se déplacer dans le texte :</strong> <kbd>Gauche</kbd>/<kbd>Droite</kbd> déplacent le curseur caractère par caractère ; un appui long change le déplacement en mode « par mots ».</p>
+        <p class="astuce">Certaines zones de saisie proposent des <strong>suggestions</strong> (contact, application, adresse e-mail). Appuyez alors sur <kbd>Retour</kbd> au lieu de <kbd>OK</kbd>, parcourez les propositions avec les flèches, puis validez avec <kbd>OK</kbd>.</p>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="b8"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="basique">
+    <details>
+      <summary>Écrire à la voix : la dictée</summary>
+      <div class="corps">
+        <ol>
+          <li>Placez-vous dans une <strong>zone de modification</strong>.</li>
+          <li>Appuyez brièvement sur le bouton de <strong>commande vocale</strong> (tranche droite, au-dessus des volumes).</li>
+          <li>Attendez la fin du signal sonore, puis dictez distinctement votre texte.</li>
+          <li>La dictée s'arrête quand vous cessez de parler. Le texte reconnu est vocalisé puis inséré.</li>
+        </ol>
+        <p class="astuce">
+          <strong>Conseils :</strong> environnement calme ; énoncez la ponctuation à voix haute
+          (« Voulez-vous venir dimanche point d'interrogation ») ; les phrases longues sont mieux reconnues que les groupes de mots.
+        </p>
+        <p>Hors d'une zone de saisie, le même bouton lance l'<strong>Assistant</strong> (connexion Internet requise).</p>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="b9"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="basique">
+    <details>
+      <summary>Passer, recevoir et refuser un appel</summary>
+      <div class="corps">
+        <h4>Recevoir un appel</h4>
+        <p>Appuyez sur <kbd>OK</kbd> pour décrocher. Un appui court sur une touche de <strong>volume</strong> coupe la sonnerie pour entendre le nom de l'appelant.</p>
+        <h4>Raccrocher</h4>
+        <p>Appuyez sur <kbd>Effacer</kbd>.</p>
+        <h4>Refuser un appel</h4>
+        <p>Appuyez sur <kbd>Effacer</kbd> pendant la sonnerie.</p>
+        <h4>Passer un appel</h4>
+        <ul>
+          <li><strong>Contacts :</strong> choisissez le contact, validez, puis « Appel ».</li>
+          <li><strong>Composer un numéro :</strong> tapez les chiffres un à un, puis <kbd>OK</kbd>.</li>
+          <li><strong>Favoris :</strong> accès rapide à vos contacts favoris.</li>
+          <li><strong>Historique :</strong> appels émis et reçus, du plus récent au plus ancien.</li>
+        </ul>
+        <h4>Pendant l'appel</h4>
+        <ul>
+          <li><strong>Couper micro</strong> : votre correspondant ne vous entend plus.</li>
+          <li><strong>Haut-parleur</strong> : mode main libre. Un appui court sur le bouton de commande vocale bascule aussi en main libre.</li>
+          <li><strong>Autre appel</strong> et <strong>En attente</strong> : second appel, mise en attente, fusion ou permutation.</li>
+        </ul>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="b10"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="basique">
+    <details>
+      <summary>Envoyer et lire un SMS / MMS</summary>
+      <div class="corps">
+        <h4>Envoyer</h4>
+        <ol>
+          <li>Ouvrez <strong>Messages</strong> puis « Démarrer une discussion ».</li>
+          <li>Dans le champ « À », saisissez le nom, le numéro ou l'adresse e-mail du destinataire.</li>
+          <li>Rédigez le message, puis sélectionnez « Envoyer » en fin de liste.</li>
+        </ol>
+        <h4>Lire et répondre</h4>
+        <p>Parcourez les fils de discussion avec les flèches : seul le <strong>dernier message</strong> est vocalisé. Appuyez sur <kbd>OK</kbd> pour ouvrir la conversation, remonter dans l'historique et répondre.</p>
+        <h4>Transférer / supprimer</h4>
+        <p>Dans une conversation, sélectionnez un message et faites un <strong>appui long sur OK</strong>, puis choisissez « Autres options de conversation › Transférer » ou « Supprimer ».</p>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="b11"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="basique">
+    <details>
+      <summary>Le volet des notifications</summary>
+      <div class="corps">
+        <p><strong>Ouvrir :</strong> appui long sur <kbd>Retour</kbd>. <strong>Fermer :</strong> appui court sur <kbd>Retour</kbd>.</p>
+        <p>Parcourez la liste avec les flèches, puis <kbd>OK</kbd> pour ouvrir la notification : vous êtes redirigé vers l'application concernée. Une notification consultée disparaît du volet.</p>
+        <p>Pour personnaliser le comportement des notifications : atteignez l'élément « Gérer » dans le volet et parcourez les options.</p>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="b12"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="basique">
+    <details>
+      <summary>Les paramètres rapides</summary>
+      <div class="corps">
+        <p>Accès direct aux réglages essentiels (Wi-Fi, Bluetooth, données mobiles, mode avion…).</p>
+        <p><strong>Raccourci :</strong> <kbd>Dièse</kbd> + <kbd>3</kbd>. Également accessible depuis l'écran d'accueil via la touche <kbd>Menu</kbd>.</p>
+        <p>L'écran est personnalisable via l'élément « Modifier l'ordre des paramètres ».</p>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="b13"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="basique">
+    <details>
+      <summary>L'écran d'accueil et les applications récentes</summary>
+      <div class="corps">
+        <h4>Écran d'accueil</h4>
+        <p>Appuyez à tout moment sur <kbd>Accueil</kbd>. Quatre applications par défaut : <strong>Applications, Contacts, Téléphone, Messages</strong>.</p>
+        <p>La touche <kbd>Menu</kbd> depuis l'accueil donne accès à : Paramètres rapides, Notifications, Applications récentes, Paramètres, Accessibilité KAPSYS, Accessibilité Talkback.</p>
+        <h4>Personnaliser l'accueil</h4>
+        <ul>
+          <li><strong>Ajouter :</strong> Applications › choisir l'application › appui long sur <kbd>OK</kbd> › « Ajouter à l'écran d'accueil ».</li>
+          <li><strong>Retirer :</strong> sélectionner l'application › appui long sur <kbd>OK</kbd> › « Retirer de l'écran d'accueil ».</li>
+          <li><strong>Déplacer :</strong> appui long sur <kbd>OK</kbd> › monter, descendre, début ou fin de liste.</li>
+        </ul>
+        <h4>Applications récentes</h4>
+        <p>Appui long sur <kbd>Accueil</kbd>. <kbd>OK</kbd> rouvre l'application à l'endroit où vous l'aviez quittée ; <kbd>Effacer</kbd> la ferme. Tout en haut de la liste : « Tout fermer ».</p>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="b14"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="basique">
+    <details>
+      <summary>Les claviers virtuels Kapsys et Android</summary>
+      <div class="corps">
+        <p>Le clavier virtuel s'affiche automatiquement quand vous appuyez sur <kbd>OK</kbd> dans une zone de modification. <kbd>Retour</kbd> le ferme.</p>
+        <ul>
+          <li><strong>Clavier Kapsys</strong> (actif par défaut) : conçu pour les déficients visuels. Il affiche en gros, sur une ligne, le dernier caractère saisi. La touche <kbd>Menu</kbd> donne accès à : Caractère entré, Émoticonès, Caractères spéciaux, Éditer (tout supprimer, copier, couper, coller, début/fin du texte), Réglages (vibration, bip, délai de validation, majuscule automatique), Changer de clavier.</li>
+          <li><strong>Clavier Android</strong> : clavier standard AZERTY affiché sur la moitié inférieure de l'écran. Faites glisser un doigt puis relâchez sur la lettre voulue.</li>
+        </ul>
+        <p><strong>Raccourcis :</strong> <kbd>Étoile</kbd> + <kbd>7</kbd> = clavier Kapsys · <kbd>Étoile</kbd> + <kbd>8</kbd> = clavier Android.</p>
+        <p class="astuce">Certaines applications du Play Store ne sont pas compatibles avec le clavier physique : utilisez alors le clavier virtuel Android.</p>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="b15"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <section class="quiz" aria-labelledby="quiz-basique-titre">
+    <h3 id="quiz-basique-titre">Vérifiez vos acquis — niveau basique</h3>
+    <div id="quiz-basique"></div>
+  </section>
+
+</section>
+
+<!-- ============================================================
+     NIVEAU 2 — MAÎTRISÉE
+     ============================================================ -->
+<section id="bloc-maitrisee" data-bloc="maitrisee" aria-labelledby="titre-maitrisee" hidden>
+
+  <h2 id="titre-maitrisee">Niveau 2 — Prise en main maîtrisée</h2>
+  <p class="intro-niveau">
+    Objectif : personnaliser l'accessibilité, maîtriser les raccourcis clavier et utiliser
+    les applications essentielles du quotidien (contacts, agenda, notes, livre audio, radio, SOS).
+  </p>
+
+  <article class="carte" data-niveau="maitrisee">
+    <details>
+      <summary>Comprendre les deux services d'accessibilité</summary>
+      <div class="corps">
+        <p>Le SmartVision3 s'appuie sur <strong>deux services complémentaires</strong>, activés par défaut et à laisser activés en permanence :</p>
+        <ul>
+          <li><strong>Talkback</strong> (Google) : rend l'écran tactile utilisable par une personne déficiente visuelle, avec des gestes spécifiques et des commentaires audio.</li>
+          <li><strong>Accessibilité KAPSYS</strong> : ajoute la gestion du clavier physique, l'annonce au réveil, MagniText, les raccourcis, l'accès rapide…</li>
+        </ul>
+        <p>Accès : <em>Paramètres › Accessibilité</em>, ou depuis l'écran d'accueil via <kbd>Menu</kbd>.</p>
+        <p class="danger"><strong>Besoin d'aide d'une personne voyante ?</strong> Pour suspendre momentanément l'accessibilité Talkback, appuyez simultanément sur les <strong>deux touches de volume pendant 2 secondes</strong>. Refaites la même chose pour la réactiver.</p>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="m1"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="maitrisee">
+    <details>
+      <summary>Les gestes de l'écran tactile avec Talkback</summary>
+      <div class="corps">
+        <div class="tableau-defilant">
+          <table>
+            <caption>Principaux gestes tactiles lorsque Talkback est activé</caption>
+            <thead><tr><th scope="col">Action</th><th scope="col">Geste</th></tr></thead>
+            <tbody>
+              <tr><td>Explorer et sélectionner un élément</td><td>Toucher l'écran avec un doigt</td></tr>
+              <tr><td>Élément précédent</td><td>Balayer vers la gauche</td></tr>
+              <tr><td>Élément suivant</td><td>Balayer vers la droite</td></tr>
+              <tr><td>Premier élément de l'écran</td><td>Balayer gauche puis droite</td></tr>
+              <tr><td>Dernier élément de l'écran</td><td>Balayer droite puis gauche</td></tr>
+              <tr><td>Activer / valider l'élément</td><td>Double tapotement rapide</td></tr>
+              <tr><td>Options contextuelles d'un élément</td><td>Double tapotement puis maintien du doigt</td></tr>
+              <tr><td>Écran d'accueil</td><td>Balayer vers le haut puis vers la gauche</td></tr>
+              <tr><td>Applications en tâche de fond</td><td>Balayer vers la gauche puis vers le haut</td></tr>
+              <tr><td>Écran précédent</td><td>Balayer vers le bas puis vers la gauche</td></tr>
+              <tr><td>Volet des notifications</td><td>Balayer à deux doigts vers le bas depuis le haut de l'écran</td></tr>
+              <tr><td>Menu d'accessibilité Talkback</td><td>Balayer vers le bas puis vers la droite</td></tr>
+              <tr><td>Défilement vertical progressif</td><td>Toucher avec deux doigts et faire glisser vers le haut ou le bas</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>La liste complète se trouve dans <em>Paramètres Talkback › Personnaliser les gestes</em>.</p>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="m2"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="maitrisee">
+    <details>
+      <summary>Personnaliser Talkback</summary>
+      <div class="corps">
+        <ul>
+          <li><strong>Paramètres de la synthèse vocale :</strong> moteur (Google par défaut), téléchargement de voix, cadence, ton.</li>
+          <li><strong>Niveau de verbosité :</strong> quantité et type de retours audio.</li>
+          <li><strong>Son et vibreur :</strong> retours sensoriels.</li>
+          <li><strong>Personnaliser les gestes</strong> et <strong>Personnaliser les menus</strong> (menu d'accessibilité et commandes de lecture).</li>
+          <li><strong>Couper le capteur de proximité</strong> pour arrêter la voix : passez la main devant le capteur en haut à gauche de l'écran.</li>
+          <li><strong>Décrire automatiquement les icônes</strong> sans libellé.</li>
+          <li><strong>Clavier braille</strong> et <strong>plage braille</strong>.</li>
+          <li><strong>Paramètres avancés :</strong> énoncer les mots de passe, libellés personnalisés, ordre de description, préférence de saisie…</li>
+        </ul>
+        <p class="danger">En cas de déréglage : composez <kbd>*</kbd><kbd>#</kbd><kbd>1</kbd><kbd>1</kbd><kbd>1</kbd><kbd>#</kbd> depuis le clavier physique sur l'écran d'accueil pour réinitialiser les paramètres Talkback.</p>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="m3"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="maitrisee">
+    <details>
+      <summary>Les options de l'accessibilité KAPSYS</summary>
+      <div class="corps">
+        <ul>
+          <li><strong>MagniText :</strong> affiche en gros caractères, dans un bandeau, le texte sélectionné. Couleur, taille, vitesse et position réglables.</li>
+          <li><strong>Désactiver l'écran tactile :</strong> rend l'écran totalement inactif, tout se fait au clavier.</li>
+          <li><strong>Raccourcis clavier :</strong> consulter et modifier les raccourcis.</li>
+          <li><strong>Accès rapide :</strong> associer une application ou un contact à une touche numérique (appui long depuis l'accueil). La touche <kbd>1</kbd> est associée par défaut à la messagerie vocale.</li>
+          <li><strong>Répondre avec les touches numériques :</strong> décrocher avec n'importe quelle touche de 0 à 9.</li>
+          <li><strong>Annonce au réveil :</strong> choisir les informations énoncées à la sortie de veille : date, niveau de batterie, état du réseau, appels manqués, nouveaux messages, mises à jour.</li>
+        </ul>
+        <p class="astuce">Le réglage « Désactiver l'écran tactile » est très utile si vous ne voulez plus déclencher d'actions par contact accidentel.</p>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="m4"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="maitrisee">
+    <details>
+      <summary>Les raccourcis clavier Dièse et Étoile</summary>
+      <div class="corps">
+        <p>Les raccourcis sont des combinaisons de <kbd>Dièse</kbd> ou <kbd>Étoile</kbd> maintenu avec une touche de 0 à 9. Jusqu'à <strong>20 raccourcis</strong> sont personnalisables dans <em>Paramètres › Accessibilité › KAPSYS › Raccourcis clavier</em>.</p>
+        <div class="tableau-defilant">
+          <table>
+            <caption>Raccourcis génériques préenregistrés (touche Dièse)</caption>
+            <thead><tr><th scope="col">Raccourci</th><th scope="col">Action</th></tr></thead>
+            <tbody>
+              <tr><td><kbd>Dièse</kbd>+<kbd>1</kbd></td><td>Obtenir l'état du téléphone (heure, batterie, Wi-Fi, Bluetooth, GPS, réseau)</td></tr>
+              <tr><td><kbd>Dièse</kbd>+<kbd>2</kbd></td><td>Activer / désactiver le mode silencieux</td></tr>
+              <tr><td><kbd>Dièse</kbd>+<kbd>3</kbd></td><td>Ouvrir les paramètres rapides</td></tr>
+              <tr><td><kbd>Dièse</kbd>+<kbd>4</kbd></td><td>Diminuer la vitesse de la synthèse vocale</td></tr>
+              <tr><td><kbd>Dièse</kbd>+<kbd>5</kbd></td><td>Augmenter la vitesse de la synthèse vocale</td></tr>
+              <tr><td><kbd>Dièse</kbd>+<kbd>6</kbd></td><td>Activer / désactiver MagniText</td></tr>
+              <tr><td><kbd>Dièse</kbd>+<kbd>7</kbd></td><td>Activer / désactiver l'écran tactile</td></tr>
+              <tr><td><kbd>Dièse</kbd>+<kbd>8</kbd> et <kbd>+9</kbd></td><td>Non attribués</td></tr>
+              <tr><td><kbd>Dièse</kbd>+<kbd>0</kbd></td><td>Ouvrir QuickSupport</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="tableau-defilant">
+          <table>
+            <caption>Raccourcis préenregistrés actifs dans une zone de saisie (touche Étoile)</caption>
+            <thead><tr><th scope="col">Raccourci</th><th scope="col">Action</th></tr></thead>
+            <tbody>
+              <tr><td><kbd>Étoile</kbd>+<kbd>1</kbd></td><td>Curseur en début de zone de modification</td></tr>
+              <tr><td><kbd>Étoile</kbd>+<kbd>2</kbd></td><td>Curseur en fin de zone de modification</td></tr>
+              <tr><td><kbd>Étoile</kbd>+<kbd>3</kbd></td><td>Couper</td></tr>
+              <tr><td><kbd>Étoile</kbd>+<kbd>6</kbd></td><td>Copier</td></tr>
+              <tr><td><kbd>Étoile</kbd>+<kbd>7</kbd></td><td>Utiliser le clavier virtuel Kapsys</td></tr>
+              <tr><td><kbd>Étoile</kbd>+<kbd>8</kbd></td><td>Utiliser le clavier virtuel Android</td></tr>
+              <tr><td><kbd>Étoile</kbd>+<kbd>9</kbd></td><td>Coller</td></tr>
+              <tr><td><kbd>Étoile</kbd>+<kbd>0</kbd></td><td>Tout sélectionner</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="astuce">Actions pouvant être associées à un raccourci, entre autres : basculer la sortie audio écouteur/haut-parleur, activer/désactiver Wi-Fi, Bluetooth, GPS, données mobiles, mode avion, lampe torche, mode silencieux, Ne pas déranger, point d'accès Wi-Fi, Talkback, ou encore ouvrir l'écran des volumes.</p>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="m5"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="maitrisee">
+    <details>
+      <summary>Les contacts : créer, modifier, supprimer, favoris</summary>
+      <div class="corps">
+        <ul>
+          <li><strong>Créer :</strong> Contacts › « Créer un contact » (en fin de liste). Renseignez le nom, puis « Autres champs » pour l'adresse, les remarques… Terminez par « Enregistrer ».</li>
+          <li><strong>Modifier :</strong> ouvrez la fiche › « Modifier le contact » › « Enregistrer ».</li>
+          <li><strong>Supprimer :</strong> ouvrez la fiche › « Plus d'options » › « Supprimer » › « Placer dans la corbeille ». Suppression définitive après <strong>30 jours</strong>.</li>
+          <li><strong>Tout supprimer :</strong> « Plus d'options » › « Tout sélectionner » › « Supprimer ».</li>
+          <li><strong>Rechercher :</strong> « Rechercher dans vos contacts » et tapez les premières lettres.</li>
+          <li><strong>Favori :</strong> ouvrez la fiche › « Ajouter au favoris ».</li>
+          <li><strong>Appeler :</strong> ouvrez la fiche › « Appel ». <strong>Envoyer un SMS :</strong> ouvrez la fiche › « SMS ».</li>
+          <li><strong>Partager :</strong> « Plus d'options » › choisir les informations › choisir le mode (Messages, Bluetooth, e-mail…).</li>
+        </ul>
+        <h4>Importer / exporter</h4>
+        <ul>
+          <li><strong>Depuis une carte SIM :</strong> Contacts › « Corriger et gérer » › « Importer à partir de la carte SIM ».</li>
+          <li><strong>Depuis un fichier VCF :</strong> Contacts › « Corriger et gérer » › « Importer à partir d'un fichier ».</li>
+          <li><strong>Exporter :</strong> Contacts › « Corriger et gérer » › « Exporter dans un fichier » › « Enregistrer ».</li>
+        </ul>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="m6"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="maitrisee">
+    <details>
+      <summary>Le calendrier : gérer ses rendez-vous</summary>
+      <div class="corps">
+        <p>Application <strong>Calendrier</strong> : version simplifiée de l'agenda Google. Les événements sont triés par ordre chronologique et affichés « Nom – Date – Heure ».</p>
+        <h4>Ajouter un événement</h4>
+        <p>« Créer un événement », puis renseignez :</p>
+        <ul>
+          <li><strong>Titre</strong>, <strong>Date</strong>, <strong>Heure</strong> (arrondie à 5 minutes).</li>
+          <li><strong>Récurrence :</strong> une fois, tous les jours, chaque semaine, chaque mois, chaque année.</li>
+          <li><strong>Rappel :</strong> à l'heure, 5, 10, 30 minutes avant, 1 heure, 1 jour ou 2 jours avant, ou aucun.</li>
+          <li><strong>Sonnerie</strong>, puis <strong>Sauvegarder</strong>.</li>
+        </ul>
+        <p class="astuce">Le bouton <kbd>Retour</kbd> sauvegarde aussi l'événement si au moins un champ est renseigné.</p>
+        <h4>Alarme d'un événement</h4>
+        <p>À la sonnerie : <strong>Arrêter</strong> ou <strong>Répéter</strong> (nouvelle sonnerie dans 10 minutes). <kbd>Retour</kbd> arrête également l'alarme.</p>
+        <p class="danger">Le téléphone doit être <strong>allumé ou en veille</strong> pour que le rappel sonne. Éteint, aucun rappel n'est émis.</p>
+        <h4>Modifier / supprimer / rechercher</h4>
+        <ul>
+          <li>Sélectionnez l'événement puis <kbd>OK</kbd> pour l'ouvrir en édition.</li>
+          <li>Pour supprimer : sélectionnez puis <kbd>Effacer</kbd>, ou ouvrez et choisissez « Supprimer l'événement » en fin de liste.</li>
+          <li>Pour tout supprimer : <kbd>Menu</kbd> › « Supprimer tout ».</li>
+          <li>Pour rechercher : tapez le nom de l'événement au clavier alphanumérique, la liste se filtre.</li>
+        </ul>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="m7"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="maitrisee">
+    <details>
+      <summary>L'horloge et les alarmes</summary>
+      <div class="corps">
+        <ul>
+          <li><strong>Ajouter :</strong> onglet « Alarme » › « Ajouter une alarme » › « Passer en mode saisie de texte pour l'heure » › saisir heures et minutes › <kbd>OK</kbd>.</li>
+          <li><strong>Modifier :</strong> sélectionnez l'alarme. « Développer l'alarme » donne accès à la répétition, la sonnerie, le vibreur, le titre.</li>
+          <li><strong>Activer / désactiver :</strong> sélectionnez le bouton Activer/Désactiver de l'alarme.</li>
+          <li><strong>Arrêter une sonnerie :</strong> « Quitter » pour arrêter, « Répéter » pour 10 minutes de plus.</li>
+          <li><strong>Supprimer :</strong> « Développer l'alarme » › bouton supprimer.</li>
+        </ul>
+        <p>L'application Horloge contient aussi un minuteur et un chronomètre.</p>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="m8"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="maitrisee">
+    <details>
+      <summary>Les notes : créer, lire, exporter</summary>
+      <div class="corps">
+        <ul>
+          <li><strong>Créer :</strong> « Nouvelle note » › saisir le texte › <kbd>OK</kbd> pour sauvegarder.</li>
+          <li><strong>Modifier :</strong> appui long sur <kbd>OK</kbd> › « Modifier » › <kbd>OK</kbd> pour sauvegarder.</li>
+          <li><strong>Supprimer :</strong> appui long sur <kbd>OK</kbd> › « Effacer » › « Confirmer ». La touche <kbd>Effacer</kbd> fonctionne aussi.</li>
+          <li><strong>Tout supprimer :</strong> <kbd>Menu</kbd> › « Supprimer tout ».</li>
+          <li><strong>Rechercher :</strong> <kbd>Menu</kbd> › « Recherche » › taper un extrait du texte › <kbd>OK</kbd>.</li>
+          <li><strong>Exporter :</strong> <kbd>OK</kbd> pour le mode lecture avancé, puis <kbd>Menu</kbd> › « Exporter ». La note est copiée dans le dossier « Note » de la mémoire interne.</li>
+          <li><strong>Exporter toutes les notes :</strong> <kbd>Menu</kbd> › « Exporter tout ».</li>
+        </ul>
+        <h4>Mode lecture avancé d'une note</h4>
+        <div class="tableau-defilant">
+          <table>
+            <caption>Touches du mode lecture avancé des notes</caption>
+            <thead><tr><th scope="col">Touche</th><th scope="col">Action</th></tr></thead>
+            <tbody>
+              <tr><td><kbd>0</kbd></td><td>Pause / reprendre la lecture</td></tr>
+              <tr><td><kbd>1</kbd> / <kbd>2</kbd></td><td>Caractère à gauche / à droite</td></tr>
+              <tr><td><kbd>4</kbd> / <kbd>5</kbd></td><td>Mot à gauche / à droite</td></tr>
+              <tr><td><kbd>7</kbd> / <kbd>8</kbd></td><td>Phrase à gauche / à droite</td></tr>
+              <tr><td><kbd>Étoile</kbd></td><td>Revenir au début de la note</td></tr>
+              <tr><td><kbd>Dièse</kbd></td><td>Aller à la fin de la note</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="m9"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="maitrisee">
+    <details>
+      <summary>Le dictaphone : enregistrer un mémo vocal</summary>
+      <div class="corps">
+        <h4>Enregistrer</h4>
+        <p>« Nouvel enregistrement ». L'enregistrement démarre au <strong>troisième bip</strong>. Parlez près du micro, en bas du téléphone.</p>
+        <ul>
+          <li><kbd>Retour</kbd> : annuler l'enregistrement.</li>
+          <li><kbd>OK</kbd> : mettre en pause, puis choisir « Sauvegarder » ou « Reprendre ».</li>
+        </ul>
+        <h4>Écouter</h4>
+        <p>« Liste des mémos vocaux » : les mémos sont triés du plus récent au plus ancien. Pendant la lecture : Pause/Jouer, Arrêter, Liste des mémos vocaux, Supprimer.</p>
+        <h4>Renommer</h4>
+        <p>Liste des mémos › sélectionner › appui long sur <kbd>OK</kbd> › « Renommer l'enregistrement » › saisir le nouveau nom › <kbd>OK</kbd>.</p>
+        <h4>Supprimer</h4>
+        <p>Appui long sur <kbd>OK</kbd> › « Supprimer l'enregistrement » › confirmer. La touche <kbd>Effacer</kbd> fonctionne aussi.</p>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="m10"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="maitrisee">
+    <details>
+      <summary>La calculatrice</summary>
+      <div class="corps">
+        <ul>
+          <li><kbd>0</kbd> à <kbd>9</kbd> : saisir les chiffres.</li>
+          <li><kbd>Étoile</kbd> : saisir les opérateurs (×, ÷, +, −, virgule, point).</li>
+          <li><kbd>Dièse</kbd> : valider l'opération et vocaliser le résultat.</li>
+          <li><kbd>Effacer</kbd> : effacer le dernier chiffre ou la dernière opération.</li>
+          <li>Flèches : parcourir les chiffres et opérateurs affichés.</li>
+        </ul>
+        <p class="astuce">Fonctions avancées (sinus, cosinus, tangente, racine carrée, puissance, logarithme) : <kbd>Menu</kbd> › « Fonctions avancées », puis sélectionnez l'opérateur et validez avec <kbd>OK</kbd>.</p>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="m11"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="maitrisee">
+    <details>
+      <summary>L'appareil photo et la vidéo</summary>
+      <div class="corps">
+        <p>Ouvrez rapidement l'appareil photo depuis n'importe quel écran par <strong>deux appuis rapides sur Marche/Arrêt</strong>.</p>
+        <h4>Photo</h4>
+        <p>Sélectionnez « Obturateur » et appuyez sur <kbd>OK</kbd>. Un son caractéristique confirme la prise. « Pellicule » affiche la dernière photo.</p>
+        <h4>Vidéo</h4>
+        <p>« Liste de modes » › mode caméra › « Obturateur » + <kbd>OK</kbd> pour démarrer, à nouveau <kbd>OK</kbd> pour arrêter.</p>
+        <p class="astuce">Un appui court sur la touche <kbd>0</kbd> fait basculer entre photo et vidéo. L'application Google Photos permet de revoir toutes les prises.</p>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="m12"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="maitrisee">
+    <details>
+      <summary>Les étiquettes NFC</summary>
+      <div class="corps">
+        <p>Cinq étiquettes NFC sont fournies. Une étiquette peut contenir un texte, un mémo vocal, un numéro de téléphone ou un paramétrage. Il suffit ensuite d'approcher le dos du téléphone de l'étiquette pour lancer l'action.</p>
+        <h4>Écrire une étiquette</h4>
+        <ol>
+          <li>Ouvrez l'application <strong>NFC</strong> et choisissez le type d'information : Appel, Paramétrage (Wi-Fi, Bluetooth, mode avion, sonnerie), Application, Favori Internet, Texte, Paramètre Wi-Fi (nom et mot de passe), Mémo vocal.</li>
+          <li>Sélectionnez « Écriture » en fin de liste.</li>
+          <li>Approchez le dos du téléphone de l'étiquette : un signal sonore confirme l'enregistrement.</li>
+          <li>Collez l'étiquette sur l'objet concerné (boîte de médicament, dossier, coin de table…).</li>
+        </ol>
+        <h4>Lire une étiquette</h4>
+        <p>Inutile d'ouvrir l'application : approchez simplement le dos du téléphone de l'étiquette.</p>
+        <p class="astuce">Les étiquettes sont réutilisables à l'infini : écrire une nouvelle information écrase la précédente. Capacité des étiquettes fournies : NTAG 216, 888 octets (environ 400 caractères de texte).</p>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="m13"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="maitrisee">
+    <details>
+      <summary>Le livre audio : importer et écouter</summary>
+      <div class="corps">
+        <h4>Importer des documents</h4>
+        <p>Connectez le téléphone à un ordinateur par câble USB, puis copiez vos fichiers dans le dossier <strong>books</strong> de la mémoire interne. Vous pouvez aussi utiliser une carte micro SD (créez-y un dossier « books »), ou les dossiers <strong>Download</strong> et <strong>AudioBooks</strong>.</p>
+        <p>Formats pris en charge : Daisy 2.02, Daisy 3.0, ePub, ePub3, Doc, Docx, PDF, Txt et HTML.</p>
+        <h4>Écran principal</h4>
+        <ul>
+          <li><strong>Reprendre la lecture</strong> : reprend le dernier document là où vous l'aviez laissé.</li>
+          <li><strong>Ma bibliothèque</strong> : rechercher par titre, auteur, format, ou explorer l'arborescence des fichiers.</li>
+          <li><strong>Mes favoris</strong> · <strong>Récemment lu</strong>.</li>
+          <li><strong>Enregistrer un livre Daisy</strong> : transformer un enregistrement audio en livre Daisy.</li>
+        </ul>
+        <h4>Pendant la lecture</h4>
+        <div class="tableau-defilant">
+          <table>
+            <caption>Raccourcis clavier pendant la lecture d'un livre audio</caption>
+            <thead><tr><th scope="col">Touche</th><th scope="col">Action</th></tr></thead>
+            <tbody>
+              <tr><td><kbd>0</kbd></td><td>Lecture / Pause</td></tr>
+              <tr><td><kbd>1</kbd></td><td>Section précédente</td></tr>
+              <tr><td><kbd>2</kbd></td><td>Section suivante</td></tr>
+              <tr><td><kbd>4</kbd></td><td>Diminuer le niveau de navigation (page, titre, chapitre, ligne, mot, caractère, saut dans le temps)</td></tr>
+              <tr><td><kbd>5</kbd></td><td>Augmenter le niveau de navigation</td></tr>
+              <tr><td><kbd>7</kbd></td><td>Retour rapide (MP3 uniquement)</td></tr>
+              <tr><td><kbd>8</kbd></td><td>Avance rapide (MP3 uniquement)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>La touche <kbd>Menu</kbd> donne accès à : Mode de déplacement, Créer un signet, Se déplacer vers (début, titre, signet, pourcentage), Où-suis-je ?, Mode de lecture (synthèse vocale pour les MP3), Réglages.</p>
+        <p class="astuce">Les fichiers <strong>ZIP</strong> doivent être décompressés. « Explorer l'arborescence des fichiers » permet de les extraire directement sur le téléphone, dans le dossier « Books ».</p>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="m14"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="maitrisee">
+    <details>
+      <summary>La radio FM et la radio Web</summary>
+      <div class="corps">
+        <h4>Radio FM</h4>
+        <p>Branchez les écouteurs : ils servent d'antenne. Le menu propose : Radio précédente, Diminuer la fréquence, Ajouter aux favoris, Augmenter la fréquence, Radio suivante, Radios (liste), Écouteurs/Haut-parleur, Plus d'options, Écouter/Arrêter.</p>
+        <div class="tableau-defilant">
+          <table>
+            <caption>Raccourcis clavier de la radio FM</caption>
+            <thead><tr><th scope="col">Touche</th><th scope="col">Action</th></tr></thead>
+            <tbody>
+              <tr><td><kbd>1</kbd></td><td>Station précédente</td></tr>
+              <tr><td><kbd>2</kbd></td><td>Ouvrir / fermer la liste des stations</td></tr>
+              <tr><td><kbd>3</kbd></td><td>Station suivante</td></tr>
+              <tr><td><kbd>4</kbd> / <kbd>6</kbd></td><td>Fréquence précédente / suivante</td></tr>
+              <tr><td><kbd>5</kbd></td><td>Saisir manuellement une fréquence</td></tr>
+              <tr><td><kbd>7</kbd> / <kbd>9</kbd></td><td>Radio favorite précédente / suivante</td></tr>
+              <tr><td><kbd>8</kbd></td><td>Démarrer / arrêter l'enregistrement</td></tr>
+              <tr><td><kbd>0</kbd></td><td>Lecture / pause</td></tr>
+              <tr><td><kbd>Étoile</kbd></td><td>Enregistrer la station dans les favoris</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h4>Radio Web</h4>
+        <p>Nécessite une connexion Internet. Tapez le nom de la radio dans la zone de recherche, validez, sélectionnez la station et validez à nouveau. « Arrêter » coupe la lecture. Options : Récemment lues, Favoris, Toutes (par genre, pays, podcast).</p>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="m15"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="maitrisee">
+    <details>
+      <summary>Les réglages essentiels : Wi-Fi, Bluetooth, empreinte, mise à jour</summary>
+      <div class="corps">
+        <h4>Se connecter au Wi-Fi</h4>
+        <ol>
+          <li>Paramètres › « Réseau et internet » › « Wifi ».</li>
+          <li>« Utiliser le Wifi » : passez l'état sur « Oui ».</li>
+          <li>Sélectionnez votre réseau, saisissez le mot de passe, puis « Se connecter ».</li>
+        </ol>
+        <p>L'état « Connecté » s'affiche sous le nom du réseau. En cas d'erreur : « Vérifiez le mot de passe et réessayez ».</p>
+        <h4>Associer un appareil Bluetooth</h4>
+        <p>Paramètres › « Appareils connectés » › « Associer un appareil ». Sélectionnez l'appareil et suivez les instructions. Code demandé : essayez <kbd>0000</kbd> ou <kbd>1234</kbd>.</p>
+        <h4>Activer le capteur d'empreinte</h4>
+        <ol>
+          <li>Paramètres › « Sécurité » › « Empreinte digitale » › « Empreinte digitale + code ».</li>
+          <li>Créez un code de verrouillage à 4 chiffres, puis confirmez-le.</li>
+          <li>Posez et soulevez le doigt une quinzaine de fois jusqu'à l'annonce « Empreinte digitale ajoutée ».</li>
+        </ol>
+        <p>Jusqu'à 5 empreintes différentes. Utile aussi pour l'identification dans les applications bancaires.</p>
+        <h4>Mettre à jour le système</h4>
+        <p>Paramètres › « À propos du téléphone » › « Mises à jour du système » › « Télécharger » › « Installer ». Le téléphone redémarre pour finaliser.</p>
+        <p class="danger">Prévoyez au moins <strong>30 % de batterie</strong> et retirez la carte micro SD avant la mise à jour. Utilisez de préférence le Wi-Fi.</p>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="m16"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="maitrisee">
+    <details>
+      <summary>La fonction SOS : alerter ses proches</summary>
+      <div class="corps">
+        <p>Le SmartVision3 peut appeler et envoyer des messages d'urgence géolocalisés à des contacts prédéfinis (10 au maximum).</p>
+        <p class="danger"><strong>La fonction SOS est désactivée par défaut.</strong> Elle doit être activée et configurée avant toute utilisation. KAPSYS ne peut être tenu responsable d'un défaut de fonctionnement lié à un problème technique ou à l'indisponibilité du réseau.</p>
+        <h4>Paramétrer</h4>
+        <ul>
+          <li><strong>Bouton SOS :</strong> déclenchement via le menu du bouton Marche/Arrêt.</li>
+          <li><strong>Déclencher une alarme</strong> et <strong>Alerte lumineuse</strong> (LED).</li>
+          <li><strong>Liste des numéros :</strong> les personnes à joindre.</li>
+          <li><strong>Appel actif :</strong> appels successifs dans l'ordre de la liste, jusqu'à ce qu'un appel soit accepté. Délai de décrochage par défaut : 30 secondes.</li>
+          <li><strong>Envoi de SMS :</strong> avec ou sans coordonnées géographiques, avec un message personnalisable.</li>
+        </ul>
+        <h4>Déclencher</h4>
+        <p>Appui long sur <kbd>Marche/Arrêt</kbd> › sélectionnez « SOS ». <kbd>Retour</kbd> arrête le processus.</p>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="m17"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <section class="quiz" aria-labelledby="quiz-maitrisee-titre">
+    <h3 id="quiz-maitrisee-titre">Vérifiez vos acquis — niveau maîtrisé</h3>
+    <div id="quiz-maitrisee"></div>
+  </section>
+
+</section>
+
+<!-- ============================================================
+     NIVEAU 3 — AVANCÉE
+     ============================================================ -->
+<section id="bloc-avancee" data-bloc="avancee" aria-labelledby="titre-avancee" hidden>
+
+  <h2 id="titre-avancee">Niveau 3 — Prise en main avancée</h2>
+  <p class="intro-niveau">
+    Objectif : exploiter les fonctions de mobilité et de perception (Kapten, détecteurs, loupe, Lookout),
+    gérer les applications Google et savoir dépanner et réinitialiser l'appareil.
+  </p>
+
+  <article class="carte" data-niveau="avancee">
+    <details>
+      <summary>Kapten — découverte et téléchargement des cartes</summary>
+      <div class="corps">
+        <p><strong>Kapten</strong> est un système de navigation conçu pour les personnes déficientes visuelles. Il utilise le GPS du téléphone et propose géolocalisation, guidage, exploration et lecture de carte. Il fonctionne <strong>sans connexion Internet</strong> une fois les cartes téléchargées. Il permet aussi d'enregistrer des lieux favoris : les <strong>K-Tags</strong>.</p>
+        <p class="danger">
+          <strong>Mise en garde.</strong> Les instructions de Kapten ne dispensent en aucun cas de respecter le code de la route et les règles de circulation.
+          Votre attention doit rester centrée sur l'environnement : restez vigilant, respectez les autres usagers et faites preuve de bon sens
+          face à une instruction de navigation. La précision dépend de la réception GPS et de la cartographie : l'exactitude des instructions ne peut être garantie.
+        </p>
+        <h4>Premier lancement</h4>
+        <ol>
+          <li>Activez le GPS si Kapten le demande : « Valider ».</li>
+          <li>Aucune carte n'est installée par défaut : sélectionnez le pays souhaité et validez pour lancer le téléchargement (connexion Internet requise).</li>
+          <li>L'application redémarre pour installer la cartographie.</li>
+        </ol>
+        <p class="astuce">Les cartes s'installent dans la mémoire interne. Vous pouvez changer l'emplacement (mémoire interne ou carte SD) via <em>Paramètres › Gestion cartes</em>.</p>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="a1"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="avancee">
+    <details>
+      <summary>Kapten — les modes de navigation</summary>
+      <div class="corps">
+        <ul>
+          <li><strong>Navigation piétonne :</strong> trajet optimisé pour la marche.</li>
+          <li><strong>Navigation voiture :</strong> trajet optimisé pour le véhicule.</li>
+          <li><strong>Guidage cardinal :</strong> guidage à vol d'oiseau, sans tenir compte du réseau routier.</li>
+          <li><strong>Lecture de carte :</strong> exploration virtuelle d'intersection en intersection.</li>
+          <li><strong>Gérer K-Tag :</strong> créer, modifier et supprimer vos K-Tags.</li>
+          <li><strong>Parcours piéton :</strong> enregistrer puis rejouer un trajet.</li>
+          <li><strong>Navigation libre :</strong> description de l'environnement en temps réel.</li>
+        </ul>
+        <h4>Choisir sa destination (navigation piétonne ou voiture)</h4>
+        <ul>
+          <li><strong>Nouvelle adresse</strong> :
+            <ul>
+              <li><em>Saisie vocale</em> : depuis l'écran de saisie, appuyez sur le bouton de commande vocale et dictez l'adresse complète en une seule fois. Sélectionnez le bon candidat dans la liste.</li>
+              <li><em>Saisie clavier</em> : pays, ville, rue, numéro. Le texte filtre les listes ; <kbd>OK</kbd> valide, les flèches parcourent les propositions.</li>
+            </ul>
+          </li>
+          <li><strong>Nouvelle adresse par code postal.</strong></li>
+          <li><strong>Dernier trajet :</strong> dans la liste des destinations récentes.</li>
+          <li><strong>K-TAG :</strong> par catégorie puis par K-Tag.</li>
+          <li><strong>Adresse utile :</strong> par catégorie près de votre position, près d'une nouvelle adresse, ou par nom.</li>
+          <li><strong>Itinéraire :</strong> adresse de départ et d'arrivée ; le meilleur itinéraire est présenté sous forme de carnet de route.</li>
+        </ul>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="a2"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="avancee">
+    <details>
+      <summary>Kapten — les touches pendant la navigation</summary>
+      <div class="corps">
+        <div class="tableau-defilant">
+          <table>
+            <caption>Raccourcis clavier pendant une navigation Kapten</caption>
+            <thead><tr><th scope="col">Touche</th><th scope="col">Information obtenue</th></tr></thead>
+            <tbody>
+              <tr><td><kbd>0</kbd></td><td>Pause / reprise du guidage vocal</td></tr>
+              <tr><td><kbd>1</kbd></td><td>Où suis-je ?</td></tr>
+              <tr><td><kbd>2</kbd></td><td>Dernière instruction</td></tr>
+              <tr><td><kbd>3</kbd></td><td>Prochaine instruction</td></tr>
+              <tr><td><kbd>4</kbd></td><td>Vitesse actuelle</td></tr>
+              <tr><td><kbd>5</kbd></td><td>Vitesse limite</td></tr>
+              <tr><td><kbd>6</kbd></td><td>Distance restante</td></tr>
+              <tr><td><kbd>7</kbd></td><td>Recherche d'adresses utiles à proximité</td></tr>
+              <tr><td><kbd>8</kbd></td><td>Activer / désactiver la navigation libre</td></tr>
+              <tr><td><kbd>9</kbd></td><td>Réception satellite</td></tr>
+              <tr><td><kbd>Dièse</kbd></td><td>Heure d'arrivée</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>La touche <kbd>Menu</kbd> propose en outre : Instruction suivante, Dernière instruction, Destination actuelle, Distance restante, Heure d'arrivée, Mode de navigation actuel, Passer en mode piéton / voiture, Carnet de route, Arrêter navigation, Paramètres, K-Tag, Réception satellite, Où-suis-je ?, Position courante (latitude, longitude, altitude), Activer / désactiver la navigation libre, Vitesse limite, Vitesse actuelle, Recherche adresses utiles proches, K-Tag autour de moi, Désactiver / activer l'annonce vocale.</p>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="a3"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="avancee">
+    <details>
+      <summary>Kapten — le guidage cardinal</summary>
+      <div class="corps">
+        <p>Le guidage cardinal donne en temps réel la <strong>distance</strong> et la <strong>direction</strong> jusqu'à votre point d'arrivée, <strong>à vol d'oiseau</strong>, sans tenir compte du réseau routier. Utile pour atteindre précisément un point hors voirie.</p>
+        <p>Informations annoncées :</p>
+        <ul>
+          <li>L'<strong>orientation</strong> du point d'arrivée : Nord, Nord-Est, Est, Sud-Est, Sud, Sud-Ouest, Ouest, Nord-Ouest.</li>
+          <li>La <strong>distance</strong> en mètres ou kilomètres.</li>
+          <li>Le <strong>cap</strong> à suivre, exprimé en indication horaire de 1 h à 12 h, calculé par rapport à votre dernière direction de déplacement.</li>
+        </ul>
+        <p><em>Exemple :</em> « Point d'arrivée Nord-Ouest à 250 mètres, dirigez-vous à 3 heures » signifie que la destination est au Nord-Ouest à 250 m et que vous devez aller sur votre droite.</p>
+        <p class="danger">Les informations sont fournies à titre indicatif et ne tiennent pas compte de la topographie ni des dangers (rivière, pont, obstacle). KAPSYS décline toute responsabilité quant aux dommages directs ou indirects liés à ce mode.</p>
+        <p class="astuce">
+          Le guidage cardinal ne s'arrête pas automatiquement : appuyez sur <kbd>Retour</kbd> pour l'arrêter.
+          Le cap n'est fiable que si vous êtes <strong>en mouvement</strong> ; à l'arrêt, le dernier cap valide est annoncé. Le message « Pas d'information de cap » signale que le cap ne peut pas être calculé.
+        </p>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="a4"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="avancee">
+    <details>
+      <summary>Kapten — la lecture de carte</summary>
+      <div class="corps">
+        <p>Se déplacer virtuellement d'intersection en intersection, avec la description de chaque intersection.</p>
+        <ol>
+          <li>Choisissez une adresse de départ : Position courante, Nouvelle adresse, Nouvelle adresse par code postal, Derniers trajets, K-Tag, Adresses utiles.</li>
+          <li>Sélectionnez avec les flèches la direction voulue, puis <kbd>OK</kbd>.</li>
+          <li>Kapten annonce les rues qui composent la prochaine intersection.</li>
+          <li>Choisissez à nouveau une direction et validez pour poursuivre l'exploration.</li>
+        </ol>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="a5"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="avancee">
+    <details>
+      <summary>Kapten — le parcours piéton</summary>
+      <div class="corps">
+        <p>Enregistrer un trajet pour le rejouer plus tard. Quatre actions : Enregistrer parcours, Suivre parcours, Éditer parcours, Supprimer parcours.</p>
+        <h4>Enregistrer</h4>
+        <p>« Enregistrer un parcours » › <kbd>OK</kbd>. Votre position GPS est enregistrée à intervalle régulier. <kbd>Retour</kbd> arrête l'enregistrement. Renommez ensuite le parcours (nom par défaut : « Parcours + date + heure »).</p>
+        <h4>Suivre</h4>
+        <p>« Suivre un parcours » › choisissez le parcours. Il est possible de le suivre dans le sens d'enregistrement ou en sens inverse.</p>
+        <p class="astuce">Les parcours sont triés par ordre chronologique. L'enregistrement d'un parcours est considéré comme une navigation : impossible de lancer une autre navigation en même temps.</p>
+        <p class="danger">Impossible d'enregistrer un parcours en dehors de la carte : Kapten vous repositionne alors sur la rue la plus proche.</p>
+      </div>
+      <div class="outils-carte">
+        <button type="button" class="lire">🔊 Lire à voix haute</button>
+        <label class="case-fait"><input type="checkbox" data-cle="a6"> Étape terminée</label>
+      </div>
+    </details>
+  </article>
+
+  <article class="carte" data-niveau="avancee">
+    <details>
+      <summary>Kapten — les K-T
